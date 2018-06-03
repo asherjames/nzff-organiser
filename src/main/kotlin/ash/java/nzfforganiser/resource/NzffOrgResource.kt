@@ -1,16 +1,15 @@
 package ash.java.nzfforganiser.resource
 
 import ash.java.nzfforganiser.dao.NzffDao
+import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.Request
+import ash.java.nzfforganiser.model.Session
 import ash.java.nzfforganiser.scheduler.NzffScheduler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import javax.inject.Singleton
-import javax.ws.rs.GET
-import javax.ws.rs.POST
-import javax.ws.rs.Path
-import javax.ws.rs.QueryParam
+import javax.ws.rs.*
 import javax.ws.rs.core.Response
 
 @Component
@@ -22,6 +21,8 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
 
   @POST
   @Path("/wishlist")
+  @Consumes("application/json")
+  @Produces("application/json")
   fun getOrganisedWishlist(request: Request): Response
   {
     if (request.id.isBlank())
@@ -42,7 +43,13 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
           .entity("Wishlist not found or is empty").build()
     }
 
-    return Response.ok().build()
+    val movieSessions: Map<Movie, List<Session>> = wishlist
+        .map { it to nzffDao.getMovieTimes(it) }
+        .toMap()
+
+    val suggestion = scheduler.getSchedule(movieSessions)
+
+    return Response.ok(suggestion).build()
   }
 
   @GET
