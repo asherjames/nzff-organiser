@@ -8,3 +8,7 @@ data class Movie(val title: String,
                  val duration: Duration,
                  val websiteUrl: String,
                  val thumbnailUrl: String)
+
+data class Session(val duration: Duration, val dateTime: LocalDateTime)
+
+data class Suggestion(val movie: Movie, val session: Session)
