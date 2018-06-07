@@ -64,6 +64,7 @@ class NzffDaoImpl : NzffDao
     catch (e: IOException)
     {
       logger.error("Error while attempting to retrieve wishlist details from $nzffBaseUrl$id", e)
+      throw e
     }
   }
 
