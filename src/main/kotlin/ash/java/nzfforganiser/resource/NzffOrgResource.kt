@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import javax.inject.Singleton
 import javax.ws.rs.*
+import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Component
@@ -21,8 +22,8 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
 
   @POST
   @Path("/wishlist")
-  @Consumes("application/json")
-  @Produces("application/json")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
   fun getOrganisedWishlist(request: Request): Response
   {
     if (request.id.isBlank())
@@ -37,7 +38,7 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
 
     if (wishlist.isEmpty())
     {
-      logger.info("wishlist was empty, returning 404")
+      logger.info("Wishlist was empty, returning 404")
       return Response
           .status(Response.Status.NOT_FOUND)
           .entity("Wishlist not found or is empty").build()

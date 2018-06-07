@@ -7,8 +7,9 @@ import java.time.LocalDateTime
 data class Request(val id: String = "", val excludedDays: List<DayOfWeek> = emptyList())
 
 data class Movie(val title: String,
-                 val duration: Int,
                  val websiteUrl: String,
-                 val thumbnailUrl: String)
+                 val thumbnailUrl: String = "")
 
-data class Session(val movie: Movie, val duration: Duration, val dateTime: LocalDateTime)
+data class Session(val movie: Movie,
+                   val duration: Duration,
+                   val startTime: LocalDateTime)
