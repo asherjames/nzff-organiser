@@ -41,6 +41,8 @@ repositories {
 
 
 dependencies {
+    compile 'com.github.ben-manes.caffeine:caffeine:2.6.2'
+    compile 'org.springframework.boot:spring-boot-starter-cache'
     compile 'org.springframework.boot:spring-boot-starter-jersey'
     compile 'com.fasterxml.jackson.module:jackson-module-kotlin'
     compile 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
