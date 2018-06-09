@@ -34,7 +34,7 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
           .entity("id query parameter must be populated").build()
     }
 
-    val wishlist = nzffDao.retrieveWishlist(request.id)
+    val wishlist = nzffDao.getWishlist(request.id)
 
     if (wishlist.isEmpty())
     {

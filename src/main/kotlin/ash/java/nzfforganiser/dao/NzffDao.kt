@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 
 interface NzffDao
 {
-  fun retrieveWishlist(id: String): List<Movie>
+  fun getWishlist(id: String): List<Movie>
 
   fun getMovieTimes(movie: Movie): List<Session>
 }
@@ -28,7 +28,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
 
   private val filmInfoClass = "session-info film-info"
 
-  override fun retrieveWishlist(id: String): List<Movie>
+  override fun getWishlist(id: String): List<Movie>
   {
     val doc: Document = scraperClient.getDocument("$nzffWishlistUrl$id")
     val filmElements: Elements = doc.getElementsByClass(filmInfoClass)
