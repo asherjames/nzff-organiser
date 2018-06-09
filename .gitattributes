@@ -1,1 +1,1 @@
-src/main/test/resources/*.html linguist-detectable=false
+src/test/resources/*.html linguist-detectable=false
