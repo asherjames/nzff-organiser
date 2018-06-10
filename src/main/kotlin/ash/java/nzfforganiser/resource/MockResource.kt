@@ -1,33 +1,21 @@
 package ash.java.nzfforganiser.resource
 
 import ash.java.nzfforganiser.model.Movie
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 import javax.inject.Singleton
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Component
 @Singleton
-@ConditionalOnProperty("mock.endpoints.active")
-@Path("/mock")
-class MockResource
+@Profile("test")
+class MockResource : NzffResource
 {
-  @GET
-  @Path("/mocklist")
-  @Produces(MediaType.APPLICATION_JSON)
-  fun getMockList(@QueryParam("id") id: String,
-                  @QueryParam("from") from: LocalTime,
-                  @QueryParam("to") to: LocalTime,
-                  @QueryParam("disabledDay") disabledDays: List<DayOfWeek>): Response
+  override fun getOrganisedWishlist(id: String, from: LocalTime, to: LocalTime, disabledDays: List<DayOfWeek>): Response
   {
     return Response.ok(listOf(
         Movie(
