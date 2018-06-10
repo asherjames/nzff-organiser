@@ -1,6 +1,7 @@
 package ash.java.nzfforganiser.resource
 
 import ash.java.nzfforganiser.model.NzffResponse
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.DayOfWeek
@@ -13,7 +14,12 @@ interface NzffResource
   @GetMapping("/wishlist")
   @ResponseBody
   fun getOrganisedWishlist(@RequestParam("id") id: String,
-                           @RequestParam("from") from: LocalTime,
-                           @RequestParam("to") to: LocalTime,
-                           @RequestParam("disabledDay") disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
+                           @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                           @RequestParam("from", defaultValue = "00:00", required = false)
+                           from: LocalTime,
+                           @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                           @RequestParam("to", defaultValue = "23:59:59", required = false)
+                           to: LocalTime,
+                           @RequestParam("disabledDay", defaultValue = "", required = false)
+                           disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
 }

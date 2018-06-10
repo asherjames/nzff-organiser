@@ -3,8 +3,11 @@ package ash.java.nzfforganiser.resource
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.NzffResponse
 import org.springframework.context.annotation.Profile
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDateTime
@@ -14,7 +17,15 @@ import java.time.LocalTime
 @Profile("test")
 class MockResource : NzffResource
 {
-  override fun getOrganisedWishlist(id: String, from: LocalTime, to: LocalTime, disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
+  override fun getOrganisedWishlist(@RequestParam("id") id: String,
+                                    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                                    @RequestParam("from", defaultValue = "00:00", required = false)
+                                    from: LocalTime,
+                                    @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                                    @RequestParam("to", defaultValue = "23:59:59", required = false)
+                                    to: LocalTime,
+                                    @RequestParam("disabledDay", defaultValue = "", required = false)
+                                    disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
   {
     return ResponseEntity.ok(NzffResponse(
         message = "Mock endpoint",
@@ -42,5 +53,11 @@ class MockResource : NzffResource
             )
         )
     ))
+  }
+
+  @GetMapping("/noparam")
+  fun getNoParamWishlist(): ResponseEntity<NzffResponse>
+  {
+    return getOrganisedWishlist("", LocalTime.now(), LocalTime.now(), emptyList())
   }
 }
