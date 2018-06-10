@@ -1,22 +1,22 @@
 package ash.java.nzfforganiser.scheduler
 
+import ash.java.nzfforganiser.model.WishlistItem
 import ash.java.nzfforganiser.model.Movie
-import ash.java.nzfforganiser.model.Session
 import org.springframework.stereotype.Service
 
 interface NzffScheduler
 {
-  fun getSchedule(movieTimes: Map<Movie, List<Session>>): Sequence<List<Session>>
+  fun getSchedule(wishlistItemTimes: Map<WishlistItem, List<Movie>>): Sequence<List<Movie>>
 }
 
 @Service
 class NzffSchedulerImpl : NzffScheduler
 {
-  override fun getSchedule(movieTimes: Map<Movie, List<Session>>): Sequence<List<Session>>
+  override fun getSchedule(wishlistItemTimes: Map<WishlistItem, List<Movie>>): Sequence<List<Movie>>
   {
-//    val allMovieTimes = movieTimes.map { e -> e.value }.toList()
+//    val allMovieTimes = wishlistItemTimes.map { e -> e.value }.toList()
 //
-//    val p = mutableListOf<Movie>()
+//    val p = mutableListOf<WishlistItem>()
 //
 //    val max = allMovieTimes.size - 1
 //
@@ -44,7 +44,7 @@ class NzffSchedulerImpl : NzffScheduler
     TODO()
   }
 
-  private fun suggestionInvalid(schedule: List<Session?>): Boolean
+  private fun suggestionInvalid(schedule: List<Movie?>): Boolean
   {
     return true
   }

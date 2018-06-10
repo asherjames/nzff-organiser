@@ -1,7 +1,7 @@
 package ash.java.nzfforganiser.dao
 
+import ash.java.nzfforganiser.model.WishlistItem
 import ash.java.nzfforganiser.model.Movie
-import ash.java.nzfforganiser.model.Session
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 import org.slf4j.LoggerFactory
@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service
 
 interface NzffDao
 {
-  fun getWishlist(id: String): List<Movie>
+  fun getWishlist(id: String): List<WishlistItem>
 
-  fun getMovieTimes(movie: Movie): List<Session>
+  fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
 }
 
 @Service
@@ -28,11 +28,11 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
 
   private val filmInfoClass = "session-info film-info"
 
-  override fun getWishlist(id: String): List<Movie>
+  override fun getWishlist(id: String): List<WishlistItem>
   {
     val doc: Document = scraperClient.getDocument("$nzffWishlistUrl$id")
     val filmElements: Elements = doc.getElementsByClass(filmInfoClass)
-    val wishlist = mutableListOf<Movie>()
+    val wishlist = mutableListOf<WishlistItem>()
 
     if (filmElements.isEmpty())
     {
@@ -45,15 +45,15 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
       val link = filmElement.getElementsByTag("a")
       if (link != null)
       {
-        wishlist.add(Movie(title = link.text(), websiteUrl = link.attr("href")))
+        wishlist.add(WishlistItem(title = link.text(), websiteUrl = link.attr("href")))
       }
     }
 
     return wishlist
   }
 
-  @Cacheable("movieTimes", key = "#movie.title")
-  override fun getMovieTimes(movie: Movie): List<Session>
+  @Cacheable("movieTimes", key = "#wishlistItem.title")
+  override fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
   {
     TODO("not implemented")
   }

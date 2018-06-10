@@ -1,9 +1,9 @@
 package ash.java.nzfforganiser.resource
 
 import ash.java.nzfforganiser.dao.NzffDao
-import ash.java.nzfforganiser.model.Movie
+import ash.java.nzfforganiser.model.WishlistItem
 import ash.java.nzfforganiser.model.Request
-import ash.java.nzfforganiser.model.Session
+import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.scheduler.NzffScheduler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -44,11 +44,11 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
           .entity("Wishlist not found or is empty").build()
     }
 
-    val movieSessions: Map<Movie, List<Session>> = wishlist
+    val wishlistItemSessions: Map<WishlistItem, List<Movie>> = wishlist
         .map { it to nzffDao.getMovieTimes(it) }
         .toMap()
 
-    val suggestion = scheduler.getSchedule(movieSessions)
+    val suggestion = scheduler.getSchedule(wishlistItemSessions)
 
     return Response.ok(suggestion).build()
   }
