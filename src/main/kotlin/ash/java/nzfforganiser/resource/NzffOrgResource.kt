@@ -1,13 +1,13 @@
 package ash.java.nzfforganiser.resource
 
 import ash.java.nzfforganiser.dao.NzffDao
-import ash.java.nzfforganiser.model.WishlistItem
-import ash.java.nzfforganiser.model.Request
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.scheduler.NzffScheduler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import java.time.DayOfWeek
+import java.time.LocalTime
 import javax.inject.Singleton
 import javax.ws.rs.*
 import javax.ws.rs.core.MediaType
@@ -20,13 +20,15 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
 {
   private val logger = LoggerFactory.getLogger(NzffOrgResource::class.java)
 
-  @POST
+  @GET
   @Path("/wishlist")
-  @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  fun getOrganisedWishlist(request: Request): Response
+  fun getOrganisedWishlist(@QueryParam("id") id: String,
+                           @QueryParam("from") from: LocalTime,
+                           @QueryParam("to") to: LocalTime,
+                           @QueryParam("disabledDay") disabledDays: List<DayOfWeek>): Response
   {
-    if (request.id.isBlank())
+    if (id.isBlank())
     {
       logger.info("id was blank, returning 400")
       return Response
@@ -34,7 +36,7 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
           .entity("id query parameter must be populated").build()
     }
 
-    val wishlist = nzffDao.getWishlist(request.id)
+    val wishlist = nzffDao.getWishlist(id)
 
     if (wishlist.isEmpty())
     {
@@ -44,9 +46,9 @@ class NzffOrgResource @Autowired constructor(private val nzffDao: NzffDao, priva
           .entity("Wishlist not found or is empty").build()
     }
 
-    val wishlistItemSessions: Map<WishlistItem, List<Movie>> = wishlist
-        .map { it to nzffDao.getMovieTimes(it) }
-        .toMap()
+    val wishlistItemSessions: List<List<Movie>> = wishlist
+        .map { w -> nzffDao.getMovieTimes(w) }
+        .toList()
 
     val suggestion = scheduler.getSchedule(wishlistItemSessions)
 

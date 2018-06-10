@@ -1,18 +1,17 @@
 package ash.java.nzfforganiser.scheduler
 
-import ash.java.nzfforganiser.model.WishlistItem
 import ash.java.nzfforganiser.model.Movie
 import org.springframework.stereotype.Service
 
 interface NzffScheduler
 {
-  fun getSchedule(wishlistItemTimes: Map<WishlistItem, List<Movie>>): Sequence<List<Movie>>
+  fun getSchedule(allMovieTimes: List<List<Movie>>): Sequence<List<Movie>>
 }
 
 @Service
 class NzffSchedulerImpl : NzffScheduler
 {
-  override fun getSchedule(wishlistItemTimes: Map<WishlistItem, List<Movie>>): Sequence<List<Movie>>
+  override fun getSchedule(allMovieTimes: List<List<Movie>>): Sequence<List<Movie>>
   {
 //    val allMovieTimes = wishlistItemTimes.map { e -> e.value }.toList()
 //
