@@ -11,3 +11,6 @@ data class Movie(val title: String,
                  val thumbnailUrl: String,
                  val duration: Duration,
                  val startTime: LocalDateTime)
+
+data class NzffResponse(val message: String,
+                        val movieList: List<Movie> = emptyList())

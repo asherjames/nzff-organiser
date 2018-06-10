@@ -1,22 +1,19 @@
 package ash.java.nzfforganiser.resource
 
+import ash.java.nzfforganiser.model.NzffResponse
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 import java.time.DayOfWeek
 import java.time.LocalTime
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.QueryParam
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
 
-@Path("/nzfforg")
+@RestController
+@RequestMapping("/nzfforg")
 interface NzffResource
 {
-  @GET
-  @Path("/wishlist")
-  @Produces(MediaType.APPLICATION_JSON)
-  fun getOrganisedWishlist(@QueryParam("id") id: String,
-                           @QueryParam("from") from: LocalTime,
-                           @QueryParam("to") to: LocalTime,
-                           @QueryParam("disabledDay") disabledDays: List<DayOfWeek>): Response
+  @GetMapping("/wishlist")
+  @ResponseBody
+  fun getOrganisedWishlist(@RequestParam("id") id: String,
+                           @RequestParam("from") from: LocalTime,
+                           @RequestParam("to") to: LocalTime,
+                           @RequestParam("disabledDay") disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
 }
