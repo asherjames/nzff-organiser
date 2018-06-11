@@ -54,10 +54,4 @@ class MockResource : NzffResource
         )
     ))
   }
-
-  @GetMapping("/noparam")
-  fun getNoParamWishlist(): ResponseEntity<NzffResponse>
-  {
-    return getOrganisedWishlist("", LocalTime.now(), LocalTime.now(), emptyList())
-  }
 }
