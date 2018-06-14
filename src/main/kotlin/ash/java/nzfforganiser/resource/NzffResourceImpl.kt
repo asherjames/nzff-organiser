@@ -58,7 +58,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
     val suggestion = scheduler.getSchedule(wishlistItemSessions)
 
     return ResponseEntity
-        .ok(NzffResponse(message = "Found suggestion", movieList = suggestion.first()))
+        .ok(NzffResponse(message = "Found suggestion", movieList = suggestion))
   }
 
   @GetMapping("/ping")

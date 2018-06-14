@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*
 import java.time.DayOfWeek
 import java.time.LocalTime
 
+@CrossOrigin
 @RestController
 @RequestMapping("/nzfforg")
 interface NzffResource

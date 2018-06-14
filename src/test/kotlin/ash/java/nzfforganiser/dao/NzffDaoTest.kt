@@ -72,7 +72,7 @@ class ScraperClientStub : ScraperClient
 {
   override fun getDocument(url: String): Document
   {
-    var url = this.javaClass.classLoader.getResource("wishlist.html")
-    return Jsoup.parse(File(url.toURI()), "UTF-8")
+    val wishlistUrl = this.javaClass.classLoader.getResource("wishlist.html")
+    return Jsoup.parse(File(wishlistUrl.toURI()), "UTF-8")
   }
 }
