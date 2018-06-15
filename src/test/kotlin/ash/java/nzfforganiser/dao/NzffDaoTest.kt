@@ -1,15 +1,26 @@
 package ash.java.nzfforganiser.dao
 
+import ash.java.nzfforganiser.model.WishlistItem
 import org.assertj.core.api.Assertions.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.junit.Test
+import org.junit.jupiter.api.TestInstance
 import java.io.File
+import java.time.LocalDateTime
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NzffDaoTest
 {
-  private val nzffDao = NzffDaoImpl(ScraperClientStub(), "", "")
-  private val wishlist = nzffDao.getWishlist("")
+  private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), "", "")
+  private val wishlist = wishlistNzffDao.getWishlist("")
+
+  private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), "", "")
+  private val filmInfo = filmInfoNzffDao.getMovieTimes(WishlistItem(
+      title = "The Lobster",
+      thumbnailUrl = "/thumbnail.jpg",
+      websiteUrl = "/the-lobster"
+  ))
 
   @Test
   fun `document loads successfully`()
@@ -24,7 +35,7 @@ class NzffDaoTest
   }
 
   @Test
-  fun `movies have correct titles`()
+  fun `wishlist movies have correct titles`()
   {
     assertThat(wishlist.map { m -> m.title })
         .containsExactly(
@@ -66,13 +77,63 @@ class NzffDaoTest
             "https://www.nziff.co.nz/2015/auckland/finders-keepers/"
         )
   }
+
+  @Test
+  fun `session list is correct length`()
+  {
+    assertThat(filmInfo.size).isEqualTo(4)
+  }
+
+  @Test
+  fun `correct values are carried over from wishlist`()
+  {
+    assertThat(filmInfo)
+        .allMatch {
+          it.title == "The Lobster"
+          && it.thumbnailUrl == "/thumbnail.jpg"
+          && it.websiteUrl == "/the-lobster"
+        }
+  }
+
+  @Test
+  fun `correct start times are parsed`()
+  {
+    assertThat(filmInfo.map { e -> e.startTime })
+        .containsOnly(
+            LocalDateTime.parse("2015-07-16T19:15:00"),
+            LocalDateTime.parse("2015-07-23T15:30:00"),
+            LocalDateTime.parse("2015-08-01T20:30:00"),
+            LocalDateTime.parse("2015-08-02T19:30:00")
+        )
+  }
+
+  @Test
+  fun `correct end times are calculated`()
+  {
+    assertThat(filmInfo.map { e -> e.endTime })
+        .containsOnly(
+            LocalDateTime.parse("2015-07-16T21:13:00"),
+            LocalDateTime.parse("2015-07-23T17:28:00"),
+            LocalDateTime.parse("2015-08-01T22:28:00"),
+            LocalDateTime.parse("2015-08-02T21:28:00")
+        )
+  }
 }
 
-class ScraperClientStub : ScraperClient
+class WishlistScraperClientStub : ScraperClient
 {
   override fun getDocument(url: String): Document
   {
     val wishlistUrl = this.javaClass.classLoader.getResource("wishlist.html")
     return Jsoup.parse(File(wishlistUrl.toURI()), "UTF-8")
+  }
+}
+
+class FilmInfoScraperClientStub : ScraperClient
+{
+  override fun getDocument(url: String): Document
+  {
+    val filmInfoUrl = this.javaClass.classLoader.getResource("movieTimes.html")
+    return Jsoup.parse(File(filmInfoUrl.toURI()), "UTF-8")
   }
 }
