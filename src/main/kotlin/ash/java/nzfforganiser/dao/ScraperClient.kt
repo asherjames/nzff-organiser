@@ -24,7 +24,7 @@ class ScraperClientImpl : ScraperClient
     }
     catch (e: IOException)
     {
-      logger.error("Error while attempting to retrieve wishlist details from $url", e)
+      logger.error("Error while attempting to retrieve HTML document from $url", e)
       throw e
     }
   }
