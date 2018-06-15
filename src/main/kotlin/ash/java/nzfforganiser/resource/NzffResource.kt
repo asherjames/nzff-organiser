@@ -11,6 +11,7 @@ import java.time.LocalTime
 @RequestMapping("/wishlist")
 interface NzffResource
 {
+  @GetMapping
   @ResponseBody
   fun getOrganisedWishlist(url: String, from: LocalTime, to: LocalTime, disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
 }
