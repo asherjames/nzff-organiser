@@ -23,7 +23,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
 {
   private val logger = LoggerFactory.getLogger(NzffResourceImpl::class.java)
 
-  override fun getOrganisedWishlist(@RequestParam("id") id: String,
+  override fun getOrganisedWishlist(@RequestParam("url") url: String,
                                     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
                                     @RequestParam("from", defaultValue = "00:00", required = false)
                                     from: LocalTime,
@@ -33,7 +33,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
                                     @RequestParam("disabledDay", required = false)
                                     disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
   {
-    if (id.isBlank())
+    if (url.isBlank())
     {
       logger.info("id was blank, returning 400")
       return ResponseEntity
@@ -41,7 +41,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
           .body(NzffResponse(message = "id query parameter must be populated"))
     }
 
-    val wishlist = nzffDao.getWishlist(id)
+    val wishlist = nzffDao.getWishlist(url)
 
     if (wishlist.isEmpty())
     {
