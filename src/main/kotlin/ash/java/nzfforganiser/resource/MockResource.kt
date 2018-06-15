@@ -17,7 +17,7 @@ import java.time.LocalTime
 @Profile("test")
 class MockResource : NzffResource
 {
-  override fun getOrganisedWishlist(@RequestParam("id") id: String,
+  override fun getOrganisedWishlist(@RequestParam("url") url: String,
                                     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
                                     @RequestParam("from", defaultValue = "00:00", required = false)
                                     from: LocalTime,

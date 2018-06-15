@@ -35,10 +35,10 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
   {
     if (url.isBlank())
     {
-      logger.info("id was blank, returning 400")
+      logger.info("url was blank, returning 400")
       return ResponseEntity
           .badRequest()
-          .body(NzffResponse(message = "id query parameter must be populated"))
+          .body(NzffResponse(message = "url query parameter must be populated"))
     }
 
     val wishlist = nzffDao.getWishlist(url)

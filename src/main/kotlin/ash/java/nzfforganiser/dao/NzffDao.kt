@@ -20,8 +20,6 @@ interface NzffDao
 
 @Service
 class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClient,
-                                         @Value("\${nzff.wishlist.url}")
-                                         private val nzffWishlistUrl: String,
                                          @Value("\${nzff.base.url}")
                                          private val nzffBaseUrl: String) : NzffDao
 {
