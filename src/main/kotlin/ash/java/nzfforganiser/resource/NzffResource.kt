@@ -8,10 +8,9 @@ import java.time.LocalTime
 
 @CrossOrigin
 @RestController
-@RequestMapping("/nzfforg")
+@RequestMapping("/wishlist")
 interface NzffResource
 {
-  @GetMapping("/wishlist")
   @ResponseBody
   fun getOrganisedWishlist(url: String, from: LocalTime, to: LocalTime, disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
 }

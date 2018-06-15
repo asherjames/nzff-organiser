@@ -50,6 +50,34 @@ class MockResource : NzffResource
                 startTime = LocalDateTime.parse("2018-07-20T18:00:00"),
                 endTime = LocalDateTime.parse("2018-07-20T20:00:00"),
                 thumbnailUrl = "https://www.nziff.co.nz/assets/resized/sm/upload/v1/lh/vz/o2/afd1d26df64939eef7cda51b45159920-2000-2000-1125-1125-crop-fill.jpg"
+            ),
+            Movie(
+                title = "Desert Hearts",
+                websiteUrl = "/2018/auckland/desert-hearts/",
+                startTime = LocalDateTime.parse("2018-07-20T09:00:00"),
+                endTime = LocalDateTime.parse("2018-07-20T11:00:00"),
+                thumbnailUrl = "https://www.nziff.co.nz/assets/resized/sm/upload/pk/49/tb/rp/29139id_245%20KEY-RGB%20crop-2000-2000-1125-1125-crop-fill.jpg"
+            ),
+            Movie(
+                title = "Liquid Sky",
+                websiteUrl = "/2018/auckland/liquid-sky/",
+                startTime = LocalDateTime.parse("2018-07-22T09:00:00"),
+                endTime = LocalDateTime.parse("2018-07-22T11:00:00"),
+                thumbnailUrl = "https://www.nziff.co.nz/assets/resized/sm/upload/pd/7m/v2/2j/Liquid_Sky_1.1.4-800-800-450-450-crop-fill.jpg"
+            ),
+            Movie(
+                title = "The Swimming Pool",
+                websiteUrl = "/2018/auckland/the-swimming-pool/",
+                startTime = LocalDateTime.parse("2018-07-23T17:00:00"),
+                endTime = LocalDateTime.parse("2018-07-23T19:00:00"),
+                thumbnailUrl = "https://www.nziff.co.nz/assets/resized/sm/upload/ti/pc/7k/45/MP_PH_19_TE_XXX_XXX_BD-2000-2000-1125-1125-crop-fill.jpg"
+            ),
+            Movie(
+                title = "Zama",
+                websiteUrl = "/2018/auckland/zama/",
+                startTime = LocalDateTime.parse("2018-07-23T17:00:00"),
+                endTime = LocalDateTime.parse("2018-07-23T19:00:00"),
+                thumbnailUrl = "https://www.nziff.co.nz/assets/resized/sm/upload/sn/ah/7b/l6/ZAMA_5-800-800-450-450-crop-fill.jpg"
             )
         )
     ))
