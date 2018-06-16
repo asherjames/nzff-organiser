@@ -15,10 +15,10 @@ import java.time.LocalDateTime
 class MockResource : NzffResource
 {
   override fun getOrganisedWishlist(@RequestParam("id") id: String,
-                                    @RequestBody(required = false) filters: List<ScheduleFilter>): ResponseEntity<NzffResponse>
+                                    @RequestBody(required = false) filters: List<ScheduleFilter>?): ResponseEntity<NzffResponse>
   {
     return ResponseEntity.ok(NzffResponse(
-        message = "Mock endpoint",
+        message = "Filters: $filters",
         movieList = listOf(
             Movie(
                 title = "The Atlantic",

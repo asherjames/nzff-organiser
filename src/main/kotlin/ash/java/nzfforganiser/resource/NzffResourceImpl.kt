@@ -23,7 +23,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
   private val logger = LoggerFactory.getLogger(NzffResourceImpl::class.java)
 
   override fun getOrganisedWishlist(@RequestParam("id") id: String,
-                                    @RequestBody(required = false) filters: List<ScheduleFilter>): ResponseEntity<NzffResponse>
+                                    @RequestBody(required = false) filters: List<ScheduleFilter>?): ResponseEntity<NzffResponse>
   {
     val wishlist = nzffDao.getWishlist(id)
 

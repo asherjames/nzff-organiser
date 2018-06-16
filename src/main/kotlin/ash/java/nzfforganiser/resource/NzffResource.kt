@@ -12,5 +12,5 @@ interface NzffResource
 {
   @PostMapping
   @ResponseBody
-  fun getOrganisedWishlist(id: String, filters: List<ScheduleFilter> = emptyList()): ResponseEntity<NzffResponse>
+  fun getOrganisedWishlist(id: String, filters: List<ScheduleFilter>?): ResponseEntity<NzffResponse>
 }

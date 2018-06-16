@@ -1,5 +1,7 @@
 package ash.java.nzfforganiser.dao
 
+import ash.java.nzfforganiser.FilmInfoScraperClientStub
+import ash.java.nzfforganiser.WishlistScraperClientStub
 import ash.java.nzfforganiser.model.WishlistItem
 import org.assertj.core.api.Assertions.*
 import org.jsoup.Jsoup
@@ -117,23 +119,5 @@ class NzffDaoTest
             LocalDateTime.parse("2015-08-01T22:28:00"),
             LocalDateTime.parse("2015-08-02T21:28:00")
         )
-  }
-}
-
-class WishlistScraperClientStub : ScraperClient
-{
-  override fun getDocument(url: String): Document
-  {
-    val wishlistUrl = this.javaClass.classLoader.getResource("wishlist.html")
-    return Jsoup.parse(File(wishlistUrl.toURI()), "UTF-8")
-  }
-}
-
-class FilmInfoScraperClientStub : ScraperClient
-{
-  override fun getDocument(url: String): Document
-  {
-    val filmInfoUrl = this.javaClass.classLoader.getResource("movieTimes.html")
-    return Jsoup.parse(File(filmInfoUrl.toURI()), "UTF-8")
   }
 }
