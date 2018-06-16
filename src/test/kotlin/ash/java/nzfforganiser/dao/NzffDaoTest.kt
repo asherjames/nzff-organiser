@@ -12,10 +12,10 @@ import java.time.LocalDateTime
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NzffDaoTest
 {
-  private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), "")
+  private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), "", "")
   private val wishlist = wishlistNzffDao.getWishlist("")
 
-  private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), "")
+  private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), "", "")
   private val filmInfo = filmInfoNzffDao.getMovieTimes(WishlistItem(
       title = "The Lobster",
       thumbnailUrl = "/thumbnail.jpg",

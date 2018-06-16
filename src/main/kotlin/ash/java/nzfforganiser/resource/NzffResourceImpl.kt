@@ -23,7 +23,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
 {
   private val logger = LoggerFactory.getLogger(NzffResourceImpl::class.java)
 
-  override fun getOrganisedWishlist(@RequestParam("url") url: String,
+  override fun getOrganisedWishlist(@RequestParam("id") id: String,
                                     @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
                                     @RequestParam("from", defaultValue = "00:00", required = false)
                                     from: LocalTime,
@@ -33,15 +33,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
                                     @RequestParam("disabledDay", required = false)
                                     disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
   {
-    if (url.isBlank())
-    {
-      logger.info("url was blank, returning 400")
-      return ResponseEntity
-          .badRequest()
-          .body(NzffResponse(message = "url query parameter must be populated"))
-    }
-
-    val wishlist = nzffDao.getWishlist(url)
+    val wishlist = nzffDao.getWishlist(id)
 
     if (wishlist.isEmpty())
     {
@@ -55,10 +47,16 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
         .map { w -> nzffDao.getMovieTimes(w) }
         .toList()
 
-    val suggestion = scheduler.getSchedule(wishlistItemSessions)
+    val scheduleIterator = scheduler.getSchedule(wishlistItemSessions)
 
     return ResponseEntity
-        .ok(NzffResponse(message = "Found suggestion", movieList = suggestion))
+        .ok(NzffResponse(message = "Found suggestion", movieList = if (scheduleIterator.hasNext())
+        {
+          scheduleIterator.next()
+        } else
+        {
+          emptyList()
+        }))
   }
 
   @GetMapping("/ping")

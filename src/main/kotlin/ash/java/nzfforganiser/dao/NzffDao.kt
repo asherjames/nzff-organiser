@@ -13,13 +13,15 @@ import java.time.format.DateTimeParseException
 
 interface NzffDao
 {
-  fun getWishlist(url: String): List<WishlistItem>
+  fun getWishlist(id: String): List<WishlistItem>
 
   fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
 }
 
 @Service
 class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClient,
+                                         @Value("\${nzff.wishlist.url}")
+                                         private val nzffWishlistUrl: String,
                                          @Value("\${nzff.base.url}")
                                          private val nzffBaseUrl: String) : NzffDao
 {
@@ -32,9 +34,9 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   private val itemprop = "itemprop"
   private val content = "content"
 
-  override fun getWishlist(url: String): List<WishlistItem>
+  override fun getWishlist(id: String): List<WishlistItem>
   {
-    val doc = scraperClient.getDocument(url)
+    val doc = scraperClient.getDocument("$nzffWishlistUrl$id")
     val wishlistElements = doc.getElementsByClass(wishlistItemClass)
     val wishlist = mutableListOf<WishlistItem>()
 

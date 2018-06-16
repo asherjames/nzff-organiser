@@ -42,6 +42,7 @@ repositories {
 
 dependencies {
     compile 'com.github.ben-manes.caffeine:caffeine:2.6.2'
+    compile 'com.google.guava:guava:25.1-jre'
     compile 'org.springframework.boot:spring-boot-starter-cache'
     compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'

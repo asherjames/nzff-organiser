@@ -13,5 +13,5 @@ interface NzffResource
 {
   @GetMapping
   @ResponseBody
-  fun getOrganisedWishlist(url: String, from: LocalTime, to: LocalTime, disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
+  fun getOrganisedWishlist(id: String, from: LocalTime, to: LocalTime, disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
 }

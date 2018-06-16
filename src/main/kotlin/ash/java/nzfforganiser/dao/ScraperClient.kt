@@ -1,5 +1,6 @@
 package ash.java.nzfforganiser.dao
 
+import ash.java.nzfforganiser.exception.ScraperException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.slf4j.LoggerFactory
@@ -25,7 +26,7 @@ class ScraperClientImpl : ScraperClient
     catch (e: IOException)
     {
       logger.error("Error while attempting to retrieve HTML document from $url", e)
-      throw e
+      throw ScraperException("Unable to connect to NZFF site")
     }
   }
 }
