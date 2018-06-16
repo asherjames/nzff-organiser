@@ -1,18 +1,23 @@
 package ash.java.nzfforganiser
 
+import ash.java.nzfforganiser.dao.NzffDaoImpl
+import ash.java.nzfforganiser.dao.WishlistScraperClientStub
+import ash.java.nzfforganiser.resource.NzffResourceImpl
+import ash.java.nzfforganiser.scheduler.NzffSchedulerImpl
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.junit4.SpringRunner
+import io.restassured.module.mockmvc.RestAssuredMockMvc.*
+import io.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers.*
 
-@RunWith(SpringRunner::class)
-@SpringBootTest
 class NzffOrganiserApplicationTests
 {
-
   @Test
-  fun contextLoads()
+  fun `empty id returns 400`()
   {
+    given()
+        .standaloneSetup(NzffResourceImpl(NzffDaoImpl(WishlistScraperClientStub(), "", ""), NzffSchedulerImpl()))
+        .`when`()
+        .post("/wishlist")
+        .then()
+        .statusCode(400)
   }
-
 }

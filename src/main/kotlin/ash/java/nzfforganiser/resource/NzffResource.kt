@@ -1,17 +1,16 @@
 package ash.java.nzfforganiser.resource
 
 import ash.java.nzfforganiser.model.NzffResponse
+import ash.java.nzfforganiser.model.ScheduleFilter
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.time.DayOfWeek
-import java.time.LocalTime
 
 @CrossOrigin
 @RestController
 @RequestMapping("/wishlist")
 interface NzffResource
 {
-  @GetMapping
+  @PostMapping
   @ResponseBody
-  fun getOrganisedWishlist(id: String, from: LocalTime, to: LocalTime, disabledDays: List<DayOfWeek>): ResponseEntity<NzffResponse>
+  fun getOrganisedWishlist(id: String, filters: List<ScheduleFilter> = emptyList()): ResponseEntity<NzffResponse>
 }
