@@ -39,16 +39,12 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
         .map { w -> nzffDao.getMovieTimes(w) }
         .toList()
 
-    val scheduleIterator = scheduler.getSchedule(wishlistItemSessions)
+    val scheduleIterator = scheduler.getScheduleIterator(wishlistItemSessions)
+
+    val suggestion = scheduler.findSchedule(scheduleIterator, filters ?: emptyList())
 
     return ResponseEntity
-        .ok(NzffResponse(message = "Found suggestion", movieList = if (scheduleIterator.hasNext())
-        {
-          scheduleIterator.next()
-        } else
-        {
-          emptyList()
-        }))
+        .ok(NzffResponse(message = "Found schedule suggestion", movieList = suggestion))
   }
 
   @GetMapping("/ping")
