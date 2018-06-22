@@ -4,7 +4,7 @@ import ash.java.nzfforganiser.dao.NzffDao
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.NzffResponse
 import ash.java.nzfforganiser.model.ScheduleFilter
-import ash.java.nzfforganiser.scheduler.NzffScheduler
+import ash.java.nzfforganiser.schedule.NzffScheduler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile

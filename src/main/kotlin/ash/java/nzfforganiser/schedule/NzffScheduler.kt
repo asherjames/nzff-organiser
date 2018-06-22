@@ -1,4 +1,4 @@
-package ash.java.nzfforganiser.scheduler
+package ash.java.nzfforganiser.schedule
 
 import ash.java.nzfforganiser.exception.NoAcceptableScheduleFoundException
 import ash.java.nzfforganiser.exception.TooManySchedulesException
@@ -7,6 +7,8 @@ import ash.java.nzfforganiser.model.ScheduleFilter
 import com.google.common.collect.Lists
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.DayOfWeek
+import java.time.LocalTime
 
 interface NzffScheduler
 {
@@ -45,33 +47,21 @@ class NzffSchedulerImpl : NzffScheduler
 
     for (schedule in scheduleIterator)
     {
-      // Skip schedules with excluded days
-      if (schedule
-              .map { s -> s.startTime.dayOfWeek }
-              .any { d -> excludedDays.contains(d) })
-      {
-        continue
-      }
+      if (hasExcludedDays(schedule, excludedDays) ||
+          hasExcludedPeriods(schedule, excludedPeriods)) continue
 
-      // Skip schedules with sessions in unacceptable periods
-      if (schedule.any { s ->
-            val period = excludedPeriods[s.startTime.dayOfWeek]
-            s.startTime.toLocalTime().isAfter(period?.first)
-                && s.endTime.toLocalTime().isBefore(period?.second)
-           })
+      if (schedule.size > 1)
       {
-        continue
-      }
+        val sortedSchedule = schedule
+            .sortedBy { s -> s.startTime }
 
-      val sortedSchedule = schedule
-          .sortedBy { s -> s.startTime }
-
-      for (i in 1..sortedSchedule.size)
-      {
-        // Skip schedules with clashing sessions
-        if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
+        for (i in 1..sortedSchedule.size)
         {
-          continue
+          // Skip schedules with clashing sessions
+          if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
+          {
+            continue
+          }
         }
       }
 
@@ -79,5 +69,24 @@ class NzffSchedulerImpl : NzffScheduler
     }
 
     throw NoAcceptableScheduleFoundException()
+  }
+
+  internal fun hasExcludedDays(schedule: MutableList<Movie>, excludedDays: List<DayOfWeek>): Boolean
+  {
+    return (schedule
+        .map { s -> s.startTime.dayOfWeek }
+        .any { d -> excludedDays.contains(d) })
+  }
+
+  internal fun hasExcludedPeriods(schedule: MutableList<Movie>, excludedPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean
+  {
+    return (schedule.any { s ->
+      val period = excludedPeriods[s.startTime.dayOfWeek]
+      period?.let {
+        return@any s.startTime.toLocalTime().isAfter(period.first)
+            && s.endTime.toLocalTime().isBefore(period.second)
+      }
+      false
+    })
   }
 }
