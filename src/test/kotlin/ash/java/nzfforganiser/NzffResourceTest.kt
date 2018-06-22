@@ -1,10 +1,10 @@
 package ash.java.nzfforganiser
 
 import ash.java.nzfforganiser.resource.NzffResourceImpl
-import ash.java.nzfforganiser.scheduler.NzffSchedulerImpl
+import ash.java.nzfforganiser.schedule.NzffSchedulerImpl
 import io.restassured.http.ContentType
-import org.junit.Test
 import io.restassured.module.mockmvc.RestAssuredMockMvc.*
+import org.junit.jupiter.api.Test
 
 class NzffResourceTest
 {

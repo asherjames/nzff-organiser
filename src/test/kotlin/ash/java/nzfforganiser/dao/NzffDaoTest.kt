@@ -4,11 +4,8 @@ import ash.java.nzfforganiser.FilmInfoScraperClientStub
 import ash.java.nzfforganiser.WishlistScraperClientStub
 import ash.java.nzfforganiser.model.WishlistItem
 import org.assertj.core.api.Assertions.*
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.io.File
 import java.time.LocalDateTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
