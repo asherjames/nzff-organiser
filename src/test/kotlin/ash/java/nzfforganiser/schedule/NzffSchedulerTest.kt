@@ -3,6 +3,7 @@ package ash.java.nzfforganiser.schedule
 import ash.java.nzfforganiser.exception.NoAcceptableScheduleFoundException
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.ScheduleFilter
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
@@ -36,7 +37,7 @@ class NzffSchedulerTest
   private val fridayEvening = LocalDateTime.parse("2018-06-22T19:00:00")
 
   @Test
-  fun `excluded days are filtered`()
+  fun `excluded days are rejected`()
   {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
@@ -46,11 +47,138 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.MONDAY, excluded = true)).toExcludedDays()
 
-    assert(scheduler.hasExcludedDays(schedule, filters))
+    assertThat(scheduler.hasExcludedDays(schedule, filters)).isTrue()
   }
 
   @Test
-  fun `schedules with excluded days are rejected`()
+  fun `acceptable days are not rejected`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+        createMovie("B", fridayEvening, fridayEvening.plusHours(2)),
+        createMovie("C", fridayMorning, fridayMorning.plusHours(2))
+    )
+
+    val filters = listOf(ScheduleFilter(DayOfWeek.TUESDAY, excluded = true)).toExcludedDays()
+
+    assertThat(scheduler.hasExcludedDays(schedule, filters)).isFalse()
+  }
+
+  @Test
+  fun `unacceptable session times are rejected`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+        createMovie("B", fridayEvening, fridayEvening.plusHours(2)),
+        createMovie("C", fridayMorning, fridayMorning.plusHours(2))
+    )
+
+    val filters = listOf(ScheduleFilter(
+        DayOfWeek.FRIDAY,
+        from = LocalTime.parse("09:30:00"),
+        to = LocalTime.parse("17:30:00")
+    )).toExcludedPeriods()
+
+    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isTrue()
+  }
+
+  @Test
+  fun `partially acceptable session times are still rejected`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", wednesdayMorning, wednesdayMorning.plusHours(2)),
+        createMovie("B", wednesdayAfternoon, wednesdayAfternoon.plusHours(2)),
+        createMovie("C", wednesdayEvening, wednesdayEvening.plusHours(2))
+    )
+
+    val filters = listOf(ScheduleFilter(
+        DayOfWeek.WEDNESDAY,
+        from = LocalTime.parse("09:00:00"),
+        to = LocalTime.parse("20:59:00")
+    )).toExcludedPeriods()
+
+    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isTrue()
+  }
+
+  @Test
+  fun `restrictions on irrelevant days are ignored`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+        createMovie("B", fridayEvening, fridayEvening.plusHours(2)),
+        createMovie("C", fridayMorning, fridayMorning.plusHours(2))
+    )
+
+    val filters = listOf(ScheduleFilter(
+        DayOfWeek.THURSDAY,
+        from = LocalTime.parse("09:30:00"),
+        to = LocalTime.parse("17:30:00")
+    )).toExcludedPeriods()
+
+    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isFalse()
+  }
+
+  @Test
+  fun `restrictions that match sessions exactly are accepted`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+        createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
+        createMovie("C", fridayMorning, fridayMorning.plusHours(2)),
+        createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2)),
+        createMovie("E", fridayEvening, fridayEvening.plusHours(2))
+    )
+
+    val filters = listOf(
+        ScheduleFilter(
+            DayOfWeek.TUESDAY,
+            from = LocalTime.parse("18:30:00"),
+            to = LocalTime.parse("21:30:00")
+        ),
+        ScheduleFilter(
+            DayOfWeek.THURSDAY,
+            from = LocalTime.parse("09:30:00"),
+            to = LocalTime.parse("17:30:00")
+        ),
+        ScheduleFilter(
+            DayOfWeek.FRIDAY,
+            from = LocalTime.parse("09:00:00"),
+            to = LocalTime.parse("21:00:00")
+        )).toExcludedPeriods()
+
+    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isFalse()
+  }
+
+  @Test
+  fun `sessions that do not clash are accepted`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+        createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
+        createMovie("C", fridayMorning, fridayMorning.plusHours(2)),
+        createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2)),
+        createMovie("E", fridayEvening, fridayEvening.plusHours(2))
+    )
+
+    assertThat(scheduler.hasClashingSessions(schedule)).isFalse()
+  }
+
+  @Test
+  fun `sessions that clash are rejected`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+        createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
+        createMovie("C", fridayMorning, fridayMorning.plusHours(2)),
+        createMovie("D", fridayEvening.minusHours(1), fridayEvening.plusHours(1)),
+        createMovie("E", fridayEvening, fridayEvening.plusHours(2))
+    )
+
+    assertThat(scheduler.hasClashingSessions(schedule)).isTrue()
+  }
+
+  @Test
+  fun `schedules with excluded days throw correct exception`()
   {
     val iterator = scheduler.getScheduleIterator(listOf(
         listOf(
@@ -72,6 +200,43 @@ class NzffSchedulerTest
     )
 
     assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(iterator, filters) }
+  }
+
+  @Test
+  fun `schedules with excluded periods throw correct exception`()
+  {
+    val schedule = scheduler.getScheduleIterator(listOf(
+        listOf(
+            createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+            createMovie("A", mondayAfternoon, mondayAfternoon.plusHours(2))
+        ),
+        listOf(
+            createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
+            createMovie("B", tuesdayMorning, tuesdayMorning.plusHours(2))
+        ),
+        listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2))),
+        listOf(createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2))),
+        listOf(createMovie("E", fridayEvening, fridayEvening.plusHours(2)))
+    ))
+
+    val filters = listOf(
+        ScheduleFilter(
+            DayOfWeek.TUESDAY,
+            from = LocalTime.parse("18:30:00"),
+            to = LocalTime.parse("21:30:00")
+        ),
+        ScheduleFilter(
+            DayOfWeek.THURSDAY,
+            from = LocalTime.parse("09:30:00"),
+            to = LocalTime.parse("17:30:00")
+        ),
+        ScheduleFilter(
+            DayOfWeek.FRIDAY,
+            from = LocalTime.parse("09:30:00"),
+            to = LocalTime.parse("21:00:00")
+        ))
+
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(schedule, filters) }
   }
 
   private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie

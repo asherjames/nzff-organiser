@@ -47,23 +47,9 @@ class NzffSchedulerImpl : NzffScheduler
 
     for (schedule in scheduleIterator)
     {
-      if (hasExcludedDays(schedule, excludedDays) ||
-          hasExcludedPeriods(schedule, excludedPeriods)) continue
-
-      if (schedule.size > 1)
-      {
-        val sortedSchedule = schedule
-            .sortedBy { s -> s.startTime }
-
-        for (i in 1..sortedSchedule.size)
-        {
-          // Skip schedules with clashing sessions
-          if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
-          {
-            continue
-          }
-        }
-      }
+      if (hasExcludedDays(schedule, excludedDays)
+          || hasExcludedPeriods(schedule, excludedPeriods)
+          || hasClashingSessions(schedule)) continue
 
       return schedule
     }
@@ -83,10 +69,29 @@ class NzffSchedulerImpl : NzffScheduler
     return (schedule.any { s ->
       val period = excludedPeriods[s.startTime.dayOfWeek]
       period?.let {
-        return@any s.startTime.toLocalTime().isAfter(period.first)
-            && s.endTime.toLocalTime().isBefore(period.second)
+        return@any !(s.startTime.toLocalTime().isAfter(period.first.minusSeconds(1))
+            && s.endTime.toLocalTime().isBefore(period.second.plusSeconds(1)))
       }
       false
     })
+  }
+
+  internal fun hasClashingSessions(schedule: MutableList<Movie>): Boolean
+  {
+    if (schedule.size <= 1) return false
+
+    val sortedSchedule = schedule
+        .sortedBy { s -> s.startTime }
+
+    for (i in 1 until sortedSchedule.size)
+    {
+      // Skip schedules with clashing sessions
+      if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
+      {
+        return true
+      }
+    }
+
+    return false
   }
 }
