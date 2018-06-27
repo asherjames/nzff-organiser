@@ -20,8 +20,8 @@ interface NzffDao
 
 @Service
 class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClient,
-                                         @Value("\${nzff.wishlist.url}")
-                                         private val nzffWishlistUrl: String,
+                                         @Value("\${nzff.wishlist.path}")
+                                         private val nzffWishlistPath: String,
                                          @Value("\${nzff.base.url}")
                                          private val nzffBaseUrl: String) : NzffDao
 {
@@ -36,7 +36,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
 
   override fun getWishlist(id: String): List<WishlistItem>
   {
-    val doc = scraperClient.getDocument("$nzffWishlistUrl$id")
+    val doc = scraperClient.getDocument("$nzffBaseUrl$nzffWishlistPath$id")
     val wishlistElements = doc.getElementsByClass(wishlistItemClass)
     val wishlist = mutableListOf<WishlistItem>()
 
