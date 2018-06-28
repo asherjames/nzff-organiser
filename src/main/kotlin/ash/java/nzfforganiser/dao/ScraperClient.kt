@@ -21,6 +21,7 @@ class ScraperClientImpl : ScraperClient
   {
     try
     {
+      logger.info("Requesting wishlist from $url")
       return Jsoup.connect(url).get()
     }
     catch (e: IOException)
