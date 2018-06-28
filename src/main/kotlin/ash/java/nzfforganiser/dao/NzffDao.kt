@@ -27,12 +27,19 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
 {
   private val logger = LoggerFactory.getLogger(NzffDaoImpl::class.java)
 
+  private val aTag = "a"
+  private val imgTag = "img"
+
+  private val contentAttribute = "content"
+  private val hrefAttribute = "href"
+  private val itempropAttribute = "itemprop"
+  private val srcAttribute = "src"
+
   private val wishlistItemClass = "sessions"
-  private val mediaClass = "media"
   private val sessionInfoClass = "session-info film-info"
+
+  private val mediaClassSelect = "[class=\"media\"]"
   private val filmDetailSelect = "[class=\"detail\"]"
-  private val itemprop = "itemprop"
-  private val content = "content"
 
   override fun getWishlist(id: String): List<WishlistItem>
   {
@@ -48,15 +55,12 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
 
     for (wishlistElement in wishlistElements)
     {
-      val imageElement = wishlistElement.getElementsByClass(mediaClass)
-      val thumbnailUrl = imageElement.attr("style").drop(22).dropLast(2) //remove CSS prefix/suffix
       val titleElement = wishlistElement.getElementsByClass(sessionInfoClass).first()
-      val link = titleElement.getElementsByTag("a")
+      val link = titleElement.getElementsByTag(aTag)
 
       wishlist.add(WishlistItem(
           title = link.text(),
-          websiteUrl = link.attr("href"),
-          thumbnailUrl = thumbnailUrl
+          websiteUrl = link.attr(hrefAttribute)
       ))
     }
 
@@ -67,6 +71,8 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   override fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
   {
     val doc = scraperClient.getDocument("$nzffBaseUrl${wishlistItem.websiteUrl}")
+    val imageElement = doc.select(mediaClassSelect).first()
+    val thumbnailUrl = imageElement.getElementsByTag(imgTag).attr(srcAttribute)
     val detailElements = doc.select(filmDetailSelect)
     val movieTimes = mutableListOf<Movie>()
 
@@ -76,10 +82,10 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
       return movieTimes
     }
 
-    val durationElement = detailElements.first().getElementsByAttributeValue(itemprop, "duration")
+    val durationElement = detailElements.first().getElementsByAttributeValue(itempropAttribute, "duration")
     val duration = try
     {
-      Duration.parse(durationElement.attr(content))
+      Duration.parse(durationElement.attr(contentAttribute))
     }
     catch (e: DateTimeParseException)
     {
@@ -89,13 +95,13 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
 
     for (session in detailElements)
     {
-      val startDateElement = session.getElementsByAttributeValue(itemprop, "startDate")
-      val startDate = LocalDateTime.parse(startDateElement.attr(content))
+      val startDateElement = session.getElementsByAttributeValue(itempropAttribute, "startDate")
+      val startDate = LocalDateTime.parse(startDateElement.attr(contentAttribute))
 
       movieTimes.add(Movie(
           title = wishlistItem.title,
           websiteUrl = wishlistItem.websiteUrl,
-          thumbnailUrl = wishlistItem.thumbnailUrl,
+          thumbnailUrl = thumbnailUrl,
           startTime = startDate,
           endTime = startDate.plus(duration)
       ))

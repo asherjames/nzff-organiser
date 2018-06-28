@@ -17,7 +17,6 @@ class NzffDaoTest
   private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), "", "")
   private val filmInfo = filmInfoNzffDao.getMovieTimes(WishlistItem(
       title = "The Lobster",
-      thumbnailUrl = "/thumbnail.jpg",
       websiteUrl = "/the-lobster"
   ))
 
@@ -89,7 +88,6 @@ class NzffDaoTest
     assertThat(filmInfo)
         .allMatch {
           it.title == "The Lobster"
-          && it.thumbnailUrl == "/thumbnail.jpg"
           && it.websiteUrl == "/the-lobster"
         }
   }
@@ -116,5 +114,12 @@ class NzffDaoTest
             LocalDateTime.parse("2015-08-01T22:28:00"),
             LocalDateTime.parse("2015-08-02T21:28:00")
         )
+  }
+
+  @Test
+  fun `correct thumbnails are extracted`()
+  {
+    assertThat(filmInfo.map { e -> e.thumbnailUrl })
+        .containsOnly("/assets/resized/sm/upload/gg/ha/go/4i/THE%20LOBSTER%20KEY%20-%20Photo%20Despina%20Spyrou-2000-2000-1125-1125-crop-fill.jpg")
   }
 }
