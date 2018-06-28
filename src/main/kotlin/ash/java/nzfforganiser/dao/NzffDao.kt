@@ -27,7 +27,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
 {
   private val logger = LoggerFactory.getLogger(NzffDaoImpl::class.java)
 
-  private val wishlistItemClass = "session is-wished"
+  private val wishlistItemClass = "sessions"
   private val mediaClass = "media"
   private val sessionInfoClass = "session-info film-info"
   private val filmDetailSelect = "[class=\"detail\"]"
