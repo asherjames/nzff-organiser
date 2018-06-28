@@ -239,6 +239,66 @@ class NzffSchedulerTest
     assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(schedule, filters) }
   }
 
+  @Test
+  fun `filters with default values should have no effect`()
+  {
+    val schedule = scheduler.getScheduleIterator(listOf(
+        listOf(
+            createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
+            createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
+        ),
+        listOf(
+            createMovie("B1", tuesdayEvening, tuesdayEvening.plusHours(2)),
+            createMovie("B2", tuesdayMorning, tuesdayMorning.plusHours(2))
+        ),
+        listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2))),
+        listOf(createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2))),
+        listOf(createMovie("E", fridayEvening, fridayEvening.plusHours(2)))
+    ))
+
+    val filters = listOf(
+        ScheduleFilter(
+            DayOfWeek.MONDAY,
+            from = LocalTime.parse("00:00:00"),
+            to = LocalTime.parse("23:59:59")
+        ),
+        ScheduleFilter(
+            DayOfWeek.TUESDAY,
+            from = LocalTime.parse("00:00:00"),
+            to = LocalTime.parse("23:59:59")
+        ),
+        ScheduleFilter(
+            DayOfWeek.WEDNESDAY,
+            from = LocalTime.parse("00:00:00"),
+            to = LocalTime.parse("23:59:59")
+        ),
+        ScheduleFilter(
+            DayOfWeek.THURSDAY,
+            from = LocalTime.parse("00:00:00"),
+            to = LocalTime.parse("23:59:59")
+        ),
+        ScheduleFilter(
+            DayOfWeek.FRIDAY,
+            from = LocalTime.parse("00:00:00"),
+            to = LocalTime.parse("23:59:59")
+        ),
+        ScheduleFilter(
+            DayOfWeek.SATURDAY,
+            from = LocalTime.parse("00:00:00"),
+            to = LocalTime.parse("23:59:59")
+        ),
+        ScheduleFilter(
+            DayOfWeek.SUNDAY,
+            from = LocalTime.parse("00:00:00"),
+            to = LocalTime.parse("23:59:59")
+        )
+    )
+
+    assertThat(scheduler.findSchedule(schedule, filters)
+        .map { m -> m.title })
+        .containsExactly("A1", "B1", "C", "D", "E")
+  }
+
   private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie
   {
     return Movie(title = title,

@@ -41,9 +41,13 @@ class NzffSchedulerImpl : NzffScheduler
         .filter { f -> f.excluded }
         .map { f -> f.day }
 
+    logger.info("Excluded days: $excludedDays")
+
     val excludedPeriods = filters
         .map { it.day to Pair(it.from, it.to) }
         .toMap()
+
+    logger.info("Excluded periods: $excludedPeriods")
 
     for (schedule in scheduleIterator)
     {
@@ -59,21 +63,29 @@ class NzffSchedulerImpl : NzffScheduler
 
   internal fun hasExcludedDays(schedule: MutableList<Movie>, excludedDays: List<DayOfWeek>): Boolean
   {
-    return (schedule
+    val violatesDays =  (schedule
         .map { s -> s.startTime.dayOfWeek }
         .any { d -> excludedDays.contains(d) })
+
+    if (violatesDays) logger.info("Schedule contains excluded days, skipping. Schedule details: $schedule")
+
+    return violatesDays
   }
 
   internal fun hasExcludedPeriods(schedule: MutableList<Movie>, excludedPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean
   {
-    return (schedule.any { s ->
+    val violatesPeriods = (schedule.any { s ->
       val period = excludedPeriods[s.startTime.dayOfWeek]
       period?.let {
-        return@any !(s.startTime.toLocalTime().isAfter(period.first.minusSeconds(1))
-            && s.endTime.toLocalTime().isBefore(period.second.plusSeconds(1)))
+        return@any !(s.startTime.toLocalTime().plusSeconds(1).isAfter(period.first)
+            && s.endTime.toLocalTime().minusSeconds(1).isBefore(period.second))
       }
       false
     })
+
+    if (violatesPeriods) logger.info("Schedule contains excluded periods, skipping. Schedule details: $schedule")
+
+    return violatesPeriods
   }
 
   internal fun hasClashingSessions(schedule: MutableList<Movie>): Boolean
@@ -88,6 +100,7 @@ class NzffSchedulerImpl : NzffScheduler
       // Skip schedules with clashing sessions
       if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
       {
+        logger.info("${sortedSchedule[i - 1]} clashes with ${sortedSchedule[i]} in schedule, skipping")
         return true
       }
     }
