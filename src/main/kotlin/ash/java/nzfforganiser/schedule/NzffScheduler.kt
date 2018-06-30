@@ -100,7 +100,7 @@ class NzffSchedulerImpl : NzffScheduler
       // Skip schedules with clashing sessions
       if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
       {
-        logger.info("${sortedSchedule[i - 1]} clashes with ${sortedSchedule[i]} in schedule, skipping")
+        logger.info("Schedule contains clash:\n${sortedSchedule[i - 1]}\n\tclashes with\n${sortedSchedule[i]} in schedule, skipping")
         return true
       }
     }

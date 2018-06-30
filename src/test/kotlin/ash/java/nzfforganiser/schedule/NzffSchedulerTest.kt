@@ -299,6 +299,36 @@ class NzffSchedulerTest
         .containsExactly("A1", "B1", "C", "D", "E")
   }
 
+  @Test
+  fun `single movie is processed correctly`()
+  {
+    val schedule = scheduler.getScheduleIterator(listOf(
+        listOf(
+            createMovie("A", mondayMorning, mondayMorning.plusHours(2))
+        )
+    ))
+
+    assertThat(scheduler.findSchedule(schedule, emptyList()))
+        .containsOnly(createMovie("A", mondayMorning, mondayMorning.plusHours(2)))
+  }
+
+  @Test
+  fun `movies with exactly the same times are skipped`()
+  {
+    val schedule = scheduler.getScheduleIterator(listOf(
+        listOf(
+            createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
+            createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
+        ),
+        listOf(createMovie("B", mondayEvening, mondayEvening.plusHours(2))),
+        listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
+    ))
+
+    assertThat(scheduler.findSchedule(schedule, emptyList())
+        .map { m -> m.title })
+        .containsExactly("A2", "B", "C")
+  }
+
   private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie
   {
     return Movie(title = title,
