@@ -8,19 +8,27 @@ import com.google.common.collect.Lists
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalTime
+import java.time.Month
 
 interface NzffScheduler
 {
   fun getScheduleIterator(allMovieTimes: List<List<Movie>>): MutableIterator<MutableList<Movie>>
 
-  fun findSchedule(scheduleIterator: MutableIterator<MutableList<Movie>>, filters: List<ScheduleFilter>): List<Movie>
+  fun findSchedule(scheduleIterator: MutableIterator<MutableList<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
 }
 
 @Service
 class NzffSchedulerImpl : NzffScheduler
 {
   private val logger = LoggerFactory.getLogger(NzffSchedulerImpl::class.java)
+
+  private val jimInvalidDays = listOf<LocalDate>(
+      LocalDate.of(2018, Month.JULY, 19),
+      LocalDate.of(2018, Month.JULY, 20),
+      LocalDate.of(2018, Month.JULY, 21)
+  )
 
   override fun getScheduleIterator(allMovieTimes: List<List<Movie>>): MutableIterator<MutableList<Movie>>
   {
@@ -35,7 +43,7 @@ class NzffSchedulerImpl : NzffScheduler
     }
   }
 
-  override fun findSchedule(scheduleIterator: MutableIterator<MutableList<Movie>>, filters: List<ScheduleFilter>): List<Movie>
+  override fun findSchedule(scheduleIterator: MutableIterator<MutableList<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
   {
     val excludedDays = filters
         .filter { f -> f.excluded }
@@ -55,6 +63,8 @@ class NzffSchedulerImpl : NzffScheduler
           || hasExcludedPeriods(schedule, excludedPeriods)
           || hasClashingSessions(schedule)) continue
 
+      if (jimMode && isJimInvalid(schedule)) continue
+
       return schedule
     }
 
@@ -63,7 +73,7 @@ class NzffSchedulerImpl : NzffScheduler
 
   internal fun hasExcludedDays(schedule: MutableList<Movie>, excludedDays: List<DayOfWeek>): Boolean
   {
-    val violatesDays =  (schedule
+    val violatesDays = (schedule
         .map { s -> s.startTime.dayOfWeek }
         .any { d -> excludedDays.contains(d) })
 
@@ -106,5 +116,16 @@ class NzffSchedulerImpl : NzffScheduler
     }
 
     return false
+  }
+
+  internal fun isJimInvalid(schedule: MutableList<Movie>): Boolean
+  {
+    val invalid = schedule
+        .map { s -> s.startTime.toLocalDate() }
+        .any { d -> jimInvalidDays.contains(d) }
+
+    if (invalid) logger.info("Schedule is unacceptable for Mr. Philpott! Schedule details $schedule")
+
+    return invalid
   }
 }

@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam
 import java.time.LocalDateTime
 
 @Component
-@Profile("test")
+@Profile("dev")
 class MockResource : NzffResource
 {
   override fun getOrganisedWishlist(@RequestParam("id") id: String,
+                                    @RequestParam("jimMode", required = false) jimMode: Boolean,
                                     @RequestBody(required = false) filters: List<ScheduleFilter>?): ResponseEntity<NzffResponse>
   {
     return ResponseEntity.ok(NzffResponse(

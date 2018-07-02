@@ -199,7 +199,7 @@ class NzffSchedulerTest
         ScheduleFilter(DayOfWeek.TUESDAY, excluded = true)
     )
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(iterator, filters) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(iterator, filters, false) }
   }
 
   @Test
@@ -236,7 +236,7 @@ class NzffSchedulerTest
             to = LocalTime.parse("21:00:00")
         ))
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(schedule, filters) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(schedule, filters, false) }
   }
 
   @Test
@@ -294,7 +294,7 @@ class NzffSchedulerTest
         )
     )
 
-    assertThat(scheduler.findSchedule(schedule, filters)
+    assertThat(scheduler.findSchedule(schedule, filters, false)
         .map { m -> m.title })
         .containsExactly("A1", "B1", "C", "D", "E")
   }
@@ -308,7 +308,7 @@ class NzffSchedulerTest
         )
     ))
 
-    assertThat(scheduler.findSchedule(schedule, emptyList()))
+    assertThat(scheduler.findSchedule(schedule, emptyList(), false))
         .containsOnly(createMovie("A", mondayMorning, mondayMorning.plusHours(2)))
   }
 
@@ -324,7 +324,26 @@ class NzffSchedulerTest
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
     ))
 
-    assertThat(scheduler.findSchedule(schedule, emptyList())
+    assertThat(scheduler.findSchedule(schedule, emptyList(), false)
+        .map { m -> m.title })
+        .containsExactly("A2", "B", "C")
+  }
+
+  @Test
+  fun `Jim invalid times are skipped`()
+  {
+    val invalidDate = LocalDateTime.parse("2018-07-20T09:00:00")
+
+    val schedule = scheduler.getScheduleIterator(listOf(
+        listOf(
+            createMovie("A1", invalidDate, invalidDate.plusHours(2)),
+            createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
+        ),
+        listOf(createMovie("B", mondayEvening, mondayEvening.plusHours(2))),
+        listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
+    ))
+
+    assertThat(scheduler.findSchedule(schedule, emptyList(), true)
         .map { m -> m.title })
         .containsExactly("A2", "B", "C")
   }

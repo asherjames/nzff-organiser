@@ -23,6 +23,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
   private val logger = LoggerFactory.getLogger(NzffResourceImpl::class.java)
 
   override fun getOrganisedWishlist(@RequestParam("id") id: String,
+                                    @RequestParam("jimMode", required = false) jimMode: Boolean,
                                     @RequestBody(required = false) filters: List<ScheduleFilter>?): ResponseEntity<NzffResponse>
   {
     val wishlist = nzffDao.getWishlist(id)
@@ -41,7 +42,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
 
     val scheduleIterator = scheduler.getScheduleIterator(wishlistItemSessions)
 
-    val suggestion = scheduler.findSchedule(scheduleIterator, filters ?: emptyList())
+    val suggestion = scheduler.findSchedule(scheduleIterator, filters ?: emptyList(), jimMode)
 
     return ResponseEntity
         .ok(NzffResponse(message = "Found schedule suggestion", movieList = suggestion))
