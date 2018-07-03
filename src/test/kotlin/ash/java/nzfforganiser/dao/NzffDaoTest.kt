@@ -2,6 +2,7 @@ package ash.java.nzfforganiser.dao
 
 import ash.java.nzfforganiser.FilmInfoScraperClientStub
 import ash.java.nzfforganiser.WishlistScraperClientStub
+import ash.java.nzfforganiser.WishlistScraperClientStub_Duplicates
 import ash.java.nzfforganiser.model.WishlistItem
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -13,6 +14,9 @@ class NzffDaoTest
 {
   private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), "", "")
   private val wishlist = wishlistNzffDao.getWishlist("")
+
+  private val wishlistNzffDao_Duplicates = NzffDaoImpl(WishlistScraperClientStub_Duplicates(), "", "")
+  private val wishlist_duplicates = wishlistNzffDao_Duplicates.getWishlist("")
 
   private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), "", "")
   private val filmInfo = filmInfoNzffDao.getMovieTimes(WishlistItem(
@@ -121,5 +125,19 @@ class NzffDaoTest
   {
     assertThat(filmInfo.map { e -> e.thumbnailUrl })
         .containsOnly("/assets/resized/sm/upload/gg/ha/go/4i/THE%20LOBSTER%20KEY%20-%20Photo%20Despina%20Spyrou-2000-2000-1125-1125-crop-fill.jpg")
+  }
+
+  @Test
+  fun `wishlist duplicates are removed`()
+  {
+    assertThat(wishlist_duplicates.map { w -> w.title })
+        .containsExactly(
+            "Birds of Passage",
+            "First Reformed",
+            "American Animals",
+            "The Ancient Woods",
+            "The Ice King",
+            "Juliet, Naked"
+        )
   }
 }

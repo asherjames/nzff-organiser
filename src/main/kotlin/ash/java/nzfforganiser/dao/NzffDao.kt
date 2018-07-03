@@ -64,7 +64,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
       ))
     }
 
-    return wishlist
+    return wishlist.distinctBy { w -> w.title }
   }
 
   @Cacheable("movieTimes", key = "#wishlistItem.title")

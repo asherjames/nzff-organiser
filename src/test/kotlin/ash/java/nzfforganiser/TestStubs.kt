@@ -17,6 +17,15 @@ class WishlistScraperClientStub : ScraperClient
   }
 }
 
+class WishlistScraperClientStub_Duplicates : ScraperClient
+{
+  override fun getDocument(url: String): Document
+  {
+    val wishlistUrl = this.javaClass.classLoader.getResource("wishlist_duplicates.html")
+    return Jsoup.parse(File(wishlistUrl.toURI()), "UTF-8")
+  }
+}
+
 class FilmInfoScraperClientStub : ScraperClient
 {
   override fun getDocument(url: String): Document
