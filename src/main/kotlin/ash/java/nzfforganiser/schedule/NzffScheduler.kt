@@ -77,7 +77,7 @@ class NzffSchedulerImpl : NzffScheduler
         .map { s -> s.startTime.dayOfWeek }
         .any { d -> excludedDays.contains(d) })
 
-    if (violatesDays) logger.info("Schedule contains excluded days, skipping. Schedule details: $schedule")
+    if (violatesDays) logger.debug("Schedule contains excluded days, skipping. Schedule details: $schedule")
 
     return violatesDays
   }
@@ -93,7 +93,7 @@ class NzffSchedulerImpl : NzffScheduler
       false
     })
 
-    if (violatesPeriods) logger.info("Schedule contains excluded periods, skipping. Schedule details: $schedule")
+    if (violatesPeriods) logger.debug("Schedule contains excluded periods, skipping. Schedule details: $schedule")
 
     return violatesPeriods
   }
@@ -110,7 +110,7 @@ class NzffSchedulerImpl : NzffScheduler
       // Skip schedules with clashing sessions
       if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
       {
-        logger.info("Schedule contains clash:\n${sortedSchedule[i - 1]}\n\tclashes with\n${sortedSchedule[i]} in schedule, skipping")
+        logger.debug("Schedule contains clash:\n${sortedSchedule[i - 1]}\n\tclashes with\n${sortedSchedule[i]} in schedule, skipping")
         return true
       }
     }
@@ -124,7 +124,7 @@ class NzffSchedulerImpl : NzffScheduler
         .map { s -> s.startTime.toLocalDate() }
         .any { d -> jimInvalidDays.contains(d) }
 
-    if (invalid) logger.info("Schedule is unacceptable for Mr. Philpott! Schedule details $schedule")
+    if (invalid) logger.debug("Schedule is unacceptable for Mr. Philpott! Schedule details $schedule")
 
     return invalid
   }
