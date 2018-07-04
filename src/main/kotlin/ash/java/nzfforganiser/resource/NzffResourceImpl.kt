@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
 @Component
-@Profile("prod")
 class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
                                               private val scheduler: NzffScheduler) : NzffResource
 {
