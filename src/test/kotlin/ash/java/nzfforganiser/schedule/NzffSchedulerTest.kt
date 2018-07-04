@@ -47,7 +47,9 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.MONDAY, excluded = true)).toExcludedDays()
 
-    assertThat(scheduler.hasExcludedDays(schedule, filters)).isTrue()
+    val evaluations = schedule.map { m -> scheduler.isOnExcludedDay(m, filters, false) }
+
+    assertThat(evaluations).containsExactly(true, false, false)
   }
 
   @Test
@@ -61,7 +63,7 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.TUESDAY, excluded = true)).toExcludedDays()
 
-    assertThat(scheduler.hasExcludedDays(schedule, filters)).isFalse()
+    assertThat(schedule).allSatisfy { m -> !scheduler.isOnExcludedDay(m, filters, false) }
   }
 
   @Test
@@ -79,7 +81,7 @@ class NzffSchedulerTest
         to = LocalTime.parse("17:30:00")
     )).toExcludedPeriods()
 
-    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isTrue()
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
   }
 
   @Test
@@ -97,7 +99,7 @@ class NzffSchedulerTest
         to = LocalTime.parse("20:59:00")
     )).toExcludedPeriods()
 
-    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isTrue()
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
   }
 
   @Test
@@ -115,7 +117,7 @@ class NzffSchedulerTest
         to = LocalTime.parse("17:30:00")
     )).toExcludedPeriods()
 
-    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isFalse()
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
   }
 
   @Test
@@ -146,7 +148,7 @@ class NzffSchedulerTest
             to = LocalTime.parse("21:00:00")
         )).toExcludedPeriods()
 
-    assertThat(scheduler.hasExcludedPeriods(schedule, filters)).isFalse()
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
   }
 
   @Test
@@ -180,7 +182,7 @@ class NzffSchedulerTest
   @Test
   fun `schedules with excluded days throw correct exception`()
   {
-    val iterator = scheduler.getScheduleIterator(listOf(
+    val movies = listOf(
         listOf(
             createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
             createMovie("A", tuesdayMorning, tuesdayMorning.plusHours(2))
@@ -192,20 +194,20 @@ class NzffSchedulerTest
             createMovie("C", fridayEvening, fridayEvening.plusHours(2)),
             createMovie("C", fridayMorning, fridayMorning.plusHours(2))
         )
-    ))
+    )
 
     val filters = listOf(
         ScheduleFilter(DayOfWeek.MONDAY, excluded = true),
         ScheduleFilter(DayOfWeek.TUESDAY, excluded = true)
     )
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(iterator, filters, false) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters, false) }
   }
 
   @Test
   fun `schedules with excluded periods throw correct exception`()
   {
-    val schedule = scheduler.getScheduleIterator(listOf(
+    val movies = listOf(
         listOf(
             createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
             createMovie("A", mondayAfternoon, mondayAfternoon.plusHours(2))
@@ -217,7 +219,7 @@ class NzffSchedulerTest
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2))),
         listOf(createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2))),
         listOf(createMovie("E", fridayEvening, fridayEvening.plusHours(2)))
-    ))
+    )
 
     val filters = listOf(
         ScheduleFilter(
@@ -236,13 +238,13 @@ class NzffSchedulerTest
             to = LocalTime.parse("21:00:00")
         ))
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(schedule, filters, false) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters, false) }
   }
 
   @Test
   fun `filters with default values should have no effect`()
   {
-    val schedule = scheduler.getScheduleIterator(listOf(
+    val movies = listOf(
         listOf(
             createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
             createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
@@ -254,7 +256,7 @@ class NzffSchedulerTest
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2))),
         listOf(createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2))),
         listOf(createMovie("E", fridayEvening, fridayEvening.plusHours(2)))
-    ))
+    )
 
     val filters = listOf(
         ScheduleFilter(
@@ -294,7 +296,7 @@ class NzffSchedulerTest
         )
     )
 
-    assertThat(scheduler.findSchedule(schedule, filters, false)
+    assertThat(scheduler.findSchedule(movies, filters, false)
         .map { m -> m.title })
         .containsExactly("A1", "B1", "C", "D", "E")
   }
@@ -302,29 +304,29 @@ class NzffSchedulerTest
   @Test
   fun `single movie is processed correctly`()
   {
-    val schedule = scheduler.getScheduleIterator(listOf(
+    val movies = listOf(
         listOf(
             createMovie("A", mondayMorning, mondayMorning.plusHours(2))
         )
-    ))
+    )
 
-    assertThat(scheduler.findSchedule(schedule, emptyList(), false))
+    assertThat(scheduler.findSchedule(movies, emptyList(), false))
         .containsOnly(createMovie("A", mondayMorning, mondayMorning.plusHours(2)))
   }
 
   @Test
   fun `movies with exactly the same times are skipped`()
   {
-    val schedule = scheduler.getScheduleIterator(listOf(
+    val movies = listOf(
         listOf(
             createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
             createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
         ),
         listOf(createMovie("B", mondayEvening, mondayEvening.plusHours(2))),
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
-    ))
+    )
 
-    assertThat(scheduler.findSchedule(schedule, emptyList(), false)
+    assertThat(scheduler.findSchedule(movies, emptyList(), false)
         .map { m -> m.title })
         .containsExactly("A2", "B", "C")
   }
@@ -334,16 +336,16 @@ class NzffSchedulerTest
   {
     val invalidDate = LocalDateTime.parse("2018-07-20T09:00:00")
 
-    val schedule = scheduler.getScheduleIterator(listOf(
+    val movies = listOf(
         listOf(
             createMovie("A1", invalidDate, invalidDate.plusHours(2)),
             createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
         ),
         listOf(createMovie("B", mondayEvening, mondayEvening.plusHours(2))),
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
-    ))
+    )
 
-    assertThat(scheduler.findSchedule(schedule, emptyList(), true)
+    assertThat(scheduler.findSchedule(movies, emptyList(), true)
         .map { m -> m.title })
         .containsExactly("A2", "B", "C")
   }

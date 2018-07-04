@@ -40,9 +40,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
         .map { w -> nzffDao.getMovieTimes(w) }
         .toList()
 
-    val scheduleIterator = scheduler.getScheduleIterator(wishlistItemSessions)
-
-    val suggestion = scheduler.findSchedule(scheduleIterator, filters ?: emptyList(), jimMode)
+    val suggestion = scheduler.findSchedule(wishlistItemSessions, filters ?: emptyList(), jimMode)
 
     return ResponseEntity
         .ok(NzffResponse(message = "Found schedule suggestion", movieList = suggestion))

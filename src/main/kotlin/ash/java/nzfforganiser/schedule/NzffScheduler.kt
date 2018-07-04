@@ -14,9 +14,7 @@ import java.time.Month
 
 interface NzffScheduler
 {
-  fun getScheduleIterator(allMovieTimes: List<List<Movie>>): MutableIterator<MutableList<Movie>>
-
-  fun findSchedule(scheduleIterator: MutableIterator<MutableList<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
+  fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
 }
 
 @Service
@@ -30,11 +28,31 @@ class NzffSchedulerImpl : NzffScheduler
       LocalDate.of(2018, Month.JULY, 21)
   )
 
-  override fun getScheduleIterator(allMovieTimes: List<List<Movie>>): MutableIterator<MutableList<Movie>>
+  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
   {
     try
     {
-      return Lists.cartesianProduct(allMovieTimes).iterator()
+      val excludedDays = filters
+          .filter { f -> f.excluded }
+          .map { f -> f.day }
+
+      val excludedPeriods = filters
+          .map { it.day to Pair(it.from, it.to) }
+          .toMap()
+
+      val filteredTimes = allMovieTimes
+          .map { l -> l.filter { m -> !isOnExcludedDay(m, excludedDays, jimMode) } }
+          .map { l -> l.filter { m -> !isInExcludedPeriod(m, excludedPeriods)} }
+
+      val schedules = Lists.cartesianProduct(filteredTimes)
+
+      for (schedule in schedules)
+      {
+        if (hasClashingSessions(schedule)) continue
+        return schedule
+      }
+
+      throw NoAcceptableScheduleFoundException()
     }
     catch (e: IllegalArgumentException)
     {
@@ -43,59 +61,36 @@ class NzffSchedulerImpl : NzffScheduler
     }
   }
 
-  override fun findSchedule(scheduleIterator: MutableIterator<MutableList<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
+  internal fun isOnExcludedDay(movie: Movie, excludedDays: List<DayOfWeek>, jimMode: Boolean): Boolean
   {
-    val excludedDays = filters
-        .filter { f -> f.excluded }
-        .map { f -> f.day }
+    var onDay = excludedDays.contains(movie.startTime.dayOfWeek)
 
-    logger.info("Excluded days: $excludedDays")
-
-    val excludedPeriods = filters
-        .map { it.day to Pair(it.from, it.to) }
-        .toMap()
-
-    logger.info("Excluded periods: $excludedPeriods")
-
-    for (schedule in scheduleIterator)
+    if (jimMode)
     {
-      if (hasExcludedDays(schedule, excludedDays)
-          || hasExcludedPeriods(schedule, excludedPeriods)
-          || hasClashingSessions(schedule)) continue
-
-      if (jimMode && isJimInvalid(schedule)) continue
-
-      return schedule
+      onDay = jimInvalidDays.contains(movie.startTime.toLocalDate())
     }
 
-    throw NoAcceptableScheduleFoundException()
+    if (onDay) logger.info("Session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session details: $movie")
+
+    return onDay
   }
 
-  internal fun hasExcludedDays(schedule: MutableList<Movie>, excludedDays: List<DayOfWeek>): Boolean
+  internal fun isInExcludedPeriod(movie: Movie, excludedPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean
   {
-    val violatesDays = (schedule
-        .map { s -> s.startTime.dayOfWeek }
-        .any { d -> excludedDays.contains(d) })
+    val period = excludedPeriods[movie.startTime.dayOfWeek]
 
-    if (violatesDays) logger.debug("Schedule contains excluded days, skipping. Schedule details: $schedule")
-
-    return violatesDays
-  }
-
-  internal fun hasExcludedPeriods(schedule: MutableList<Movie>, excludedPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean
-  {
-    val violatesPeriods = (schedule.any { s ->
-      val period = excludedPeriods[s.startTime.dayOfWeek]
-      period?.let {
-        return@any !(s.startTime.toLocalTime().plusSeconds(1).isAfter(period.first)
-            && s.endTime.toLocalTime().minusSeconds(1).isBefore(period.second))
-      }
+    val inPeriod = if (period != null) {
+      return !(movie.startTime.toLocalTime().plusSeconds(1).isAfter(period.first)
+          && movie.endTime.toLocalTime().minusSeconds(1).isBefore(period.second))
+    }
+    else
+    {
       false
-    })
+    }
 
-    if (violatesPeriods) logger.debug("Schedule contains excluded periods, skipping. Schedule details: $schedule")
+    if (inPeriod) logger.info("Session is in excluded period, skipping. Session details: $movie")
 
-    return violatesPeriods
+    return inPeriod
   }
 
   internal fun hasClashingSessions(schedule: MutableList<Movie>): Boolean
@@ -116,16 +111,5 @@ class NzffSchedulerImpl : NzffScheduler
     }
 
     return false
-  }
-
-  internal fun isJimInvalid(schedule: MutableList<Movie>): Boolean
-  {
-    val invalid = schedule
-        .map { s -> s.startTime.toLocalDate() }
-        .any { d -> jimInvalidDays.contains(d) }
-
-    if (invalid) logger.debug("Schedule is unacceptable for Mr. Philpott! Schedule details $schedule")
-
-    return invalid
   }
 }
