@@ -43,6 +43,9 @@ class NzffSchedulerImpl : NzffScheduler
       val filteredTimes = allMovieTimes
           .map { l -> l.filter { m -> !isOnExcludedDay(m, excludedDays, jimMode) } }
           .map { l -> l.filter { m -> !isInExcludedPeriod(m, excludedPeriods)} }
+          .filter { l -> l.isNotEmpty() }
+
+      if (filteredTimes.isEmpty()) throw NoAcceptableScheduleFoundException()
 
       val schedules = Lists.cartesianProduct(filteredTimes)
 
@@ -70,7 +73,7 @@ class NzffSchedulerImpl : NzffScheduler
       onDay = jimInvalidDays.contains(movie.startTime.toLocalDate())
     }
 
-    if (onDay) logger.info("Session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session details: $movie")
+    if (onDay) logger.info("${movie.title} session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session start time: ${movie.startTime}")
 
     return onDay
   }
@@ -88,7 +91,7 @@ class NzffSchedulerImpl : NzffScheduler
       false
     }
 
-    if (inPeriod) logger.info("Session is in excluded period, skipping. Session details: $movie")
+    if (inPeriod) logger.info("${movie.title} session is in excluded period, skipping. Session start time: ${movie.startTime}")
 
     return inPeriod
   }

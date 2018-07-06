@@ -198,10 +198,37 @@ class NzffSchedulerTest
 
     val filters = listOf(
         ScheduleFilter(DayOfWeek.MONDAY, excluded = true),
-        ScheduleFilter(DayOfWeek.TUESDAY, excluded = true)
+        ScheduleFilter(DayOfWeek.TUESDAY, excluded = true),
+        ScheduleFilter(DayOfWeek.FRIDAY, excluded = true)
     )
 
     assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters, false) }
+  }
+
+  @Test
+  fun `schedules with no excluded days are accepted`()
+  {
+    val movies = listOf(
+        listOf(
+            createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
+            createMovie("A2", tuesdayMorning, tuesdayMorning.plusHours(2))
+        ),
+        listOf(
+            createMovie("B", fridayEvening, fridayEvening.plusHours(2))
+        ),
+        listOf(
+            createMovie("C1", fridayAfternoon, fridayAfternoon.plusHours(2)),
+            createMovie("C2", fridayMorning, fridayMorning.plusHours(2))
+        )
+    )
+
+    val filters = listOf(
+        ScheduleFilter(DayOfWeek.MONDAY, excluded = true)
+    )
+
+    assertThat(scheduler.findSchedule(movies, filters, false)
+        .map { m -> m.title })
+        .containsExactly("A2", "B", "C1")
   }
 
   @Test
@@ -209,12 +236,12 @@ class NzffSchedulerTest
   {
     val movies = listOf(
         listOf(
-            createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
-            createMovie("A", mondayAfternoon, mondayAfternoon.plusHours(2))
+            createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
+            createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
         ),
         listOf(
-            createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
-            createMovie("B", tuesdayMorning, tuesdayMorning.plusHours(2))
+            createMovie("B1", tuesdayEvening, tuesdayEvening.plusHours(2)),
+            createMovie("B2", tuesdayMorning, tuesdayMorning.plusHours(2))
         ),
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2))),
         listOf(createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2))),
@@ -223,9 +250,14 @@ class NzffSchedulerTest
 
     val filters = listOf(
         ScheduleFilter(
+            DayOfWeek.MONDAY,
+            from = LocalTime.parse("14:30:00"),
+            to = LocalTime.parse("15:30:00")
+        ),
+        ScheduleFilter(
             DayOfWeek.TUESDAY,
-            from = LocalTime.parse("18:30:00"),
-            to = LocalTime.parse("21:30:00")
+            from = LocalTime.parse("10:30:00"),
+            to = LocalTime.parse("20:30:00")
         ),
         ScheduleFilter(
             DayOfWeek.THURSDAY,
@@ -234,11 +266,59 @@ class NzffSchedulerTest
         ),
         ScheduleFilter(
             DayOfWeek.FRIDAY,
-            from = LocalTime.parse("09:30:00"),
-            to = LocalTime.parse("21:00:00")
+            from = LocalTime.parse("08:45:00"),
+            to = LocalTime.parse("10:00:00")
         ))
 
     assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters, false) }
+  }
+
+  @Test
+  fun `schedules with no excluded periods are accepted`()
+  {
+    val movies = listOf(
+        listOf(
+            createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
+            createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
+        ),
+        listOf(
+            createMovie("B1", tuesdayEvening, tuesdayEvening.plusHours(2)),
+            createMovie("B2", tuesdayMorning, tuesdayMorning.plusHours(2))
+        ),
+        listOf(
+            createMovie("C1", thursdayMorning, thursdayMorning.plusHours(2)),
+            createMovie("C2", thursdayAfternoon, thursdayAfternoon.plusHours(2)),
+            createMovie("C3", thursdayEvening, thursdayEvening.plusHours(2))
+        ),
+        listOf(createMovie("D", fridayAfternoon, fridayAfternoon.plusHours(2))),
+        listOf(createMovie("E", fridayEvening, fridayEvening.plusHours(2)))
+    )
+
+    val filters = listOf(
+        ScheduleFilter(
+            DayOfWeek.MONDAY,
+            from = LocalTime.parse("14:00:00"),
+            to = LocalTime.parse("16:30:00")
+        ),
+        ScheduleFilter(
+            DayOfWeek.TUESDAY,
+            from = LocalTime.parse("10:30:00"),
+            to = LocalTime.parse("20:30:00")
+        ),
+        ScheduleFilter(
+            DayOfWeek.THURSDAY,
+            from = LocalTime.parse("19:00:00"),
+            to = LocalTime.parse("21:00:00")
+        ),
+        ScheduleFilter(
+            DayOfWeek.FRIDAY,
+            from = LocalTime.parse("08:45:00"),
+            to = LocalTime.parse("22:00:00")
+        ))
+
+    assertThat(scheduler.findSchedule(movies, filters, false)
+        .map { m -> m.title })
+        .containsExactly("A2", "C3", "D", "E")
   }
 
   @Test
