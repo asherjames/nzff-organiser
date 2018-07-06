@@ -15,24 +15,24 @@ class CacheConfig
 {
   private val logger = LoggerFactory.getLogger(CacheConfig::class.java)
 
-  @Value("\${nzff.cache.wishlist.expire.seconds}")
+  @Value("\${nzff.cache.wishlists.expire.seconds}")
   var wishlistCacheExpireSec: Long? = null
 
-  @Value("\${nzff.cache.wishlist.maxsize}")
+  @Value("\${nzff.cache.wishlists.maxsize}")
   var wishlistCacheMaxsize: Long? = null
 
-  @Value("\${nzff.cache.movietimes.maxsize}")
+  @Value("\${nzff.cache.sessions.maxsize}")
   var movietimesCacheMaxsize: Long? = null
 
   @Bean
   fun cacheManager(): CacheManager
   {
-    val wishlistCache = CaffeineCache("wishlist", Caffeine.newBuilder()
+    val wishlistCache = CaffeineCache("wishlists", Caffeine.newBuilder()
         .expireAfterAccess(wishlistCacheExpireSec!!, TimeUnit.SECONDS)
         .maximumSize(wishlistCacheMaxsize!!)
         .build())
 
-    val movieTimeCache = CaffeineCache("movieTimes", Caffeine.newBuilder()
+    val movieTimeCache = CaffeineCache("sessions", Caffeine.newBuilder()
         .maximumSize(movietimesCacheMaxsize!!)
         .build())
 

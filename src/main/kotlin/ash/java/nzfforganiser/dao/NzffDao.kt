@@ -41,7 +41,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   private val mediaClassSelect = "[class=\"media\"]"
   private val filmDetailSelect = "[class=\"detail\"]"
 
-  @Cacheable("wishlist")
+  @Cacheable("wishlists")
   override fun getWishlist(id: String): List<WishlistItem>
   {
     val doc = scraperClient.getDocument("$nzffBaseUrl$nzffWishlistPath$id")
@@ -68,7 +68,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
     return wishlist.distinctBy { w -> w.title }
   }
 
-  @Cacheable("movieTimes", key = "#wishlistItem.title")
+  @Cacheable("sessions", key = "#wishlistItem.title")
   override fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
   {
     val doc = scraperClient.getDocument("$nzffBaseUrl${wishlistItem.websiteUrl}")
