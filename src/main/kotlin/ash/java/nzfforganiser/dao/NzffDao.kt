@@ -41,6 +41,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   private val mediaClassSelect = "[class=\"media\"]"
   private val filmDetailSelect = "[class=\"detail\"]"
 
+  @Cacheable("wishlist")
   override fun getWishlist(id: String): List<WishlistItem>
   {
     val doc = scraperClient.getDocument("$nzffBaseUrl$nzffWishlistPath$id")
