@@ -47,7 +47,7 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.MONDAY, excluded = true)).toExcludedDays()
 
-    val evaluations = schedule.map { m -> scheduler.isOnExcludedDay(m, filters, false) }
+    val evaluations = schedule.map { m -> scheduler.isOnValidDay(m, filters, false) }
 
     assertThat(evaluations).containsExactly(true, false, false)
   }
@@ -63,7 +63,7 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.TUESDAY, excluded = true)).toExcludedDays()
 
-    assertThat(schedule).allSatisfy { m -> !scheduler.isOnExcludedDay(m, filters, false) }
+    assertThat(schedule).allSatisfy { m -> !scheduler.isOnValidDay(m, filters, false) }
   }
 
   @Test
@@ -81,7 +81,7 @@ class NzffSchedulerTest
         to = LocalTime.parse("17:30:00")
     )).toExcludedPeriods()
 
-    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInValidPeriod(m, filters) }
   }
 
   @Test
@@ -99,7 +99,7 @@ class NzffSchedulerTest
         to = LocalTime.parse("20:59:00")
     )).toExcludedPeriods()
 
-    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInValidPeriod(m, filters) }
   }
 
   @Test
@@ -117,7 +117,7 @@ class NzffSchedulerTest
         to = LocalTime.parse("17:30:00")
     )).toExcludedPeriods()
 
-    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInValidPeriod(m, filters) }
   }
 
   @Test
@@ -148,7 +148,7 @@ class NzffSchedulerTest
             to = LocalTime.parse("21:00:00")
         )).toExcludedPeriods()
 
-    assertThat(schedule).allSatisfy { m -> !scheduler.isInExcludedPeriod(m, filters) }
+    assertThat(schedule).allSatisfy { m -> !scheduler.isInValidPeriod(m, filters) }
   }
 
   @Test

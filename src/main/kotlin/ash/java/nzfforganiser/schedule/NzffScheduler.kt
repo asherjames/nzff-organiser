@@ -36,13 +36,14 @@ class NzffSchedulerImpl : NzffScheduler
           .filter { f -> f.excluded }
           .map { f -> f.day }
 
-      val excludedPeriods = filters
+      val validPeriods = filters
+          .filter { f -> !f.excluded }
           .map { it.day to Pair(it.from, it.to) }
           .toMap()
 
       val filteredTimes = allMovieTimes
-          .map { l -> l.filter { m -> !isOnExcludedDay(m, excludedDays, jimMode) } }
-          .map { l -> l.filter { m -> !isInExcludedPeriod(m, excludedPeriods)} }
+          .map { l -> l.filter { m -> isOnValidDay(m, excludedDays, jimMode) } }
+          .map { l -> l.filter { m -> isInValidPeriod(m, validPeriods) } }
           .filter { l -> l.isNotEmpty() }
 
       if (filteredTimes.isEmpty()) throw NoAcceptableScheduleFoundException()
@@ -64,36 +65,41 @@ class NzffSchedulerImpl : NzffScheduler
     }
   }
 
-  internal fun isOnExcludedDay(movie: Movie, excludedDays: List<DayOfWeek>, jimMode: Boolean): Boolean
+  internal fun isOnValidDay(movie: Movie, excludedDays: List<DayOfWeek>, jimMode: Boolean): Boolean
   {
-    var onDay = excludedDays.contains(movie.startTime.dayOfWeek)
+    val onExcludedDay = excludedDays.contains(movie.startTime.dayOfWeek)
+
+    if (onExcludedDay)
+    {
+      logger.debug("${movie.title} session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session start time: ${movie.startTime}")
+      return false
+    }
 
     if (jimMode)
     {
-      onDay = jimInvalidDays.contains(movie.startTime.toLocalDate())
+      return !jimInvalidDays.contains(movie.startTime.toLocalDate())
     }
 
-    if (onDay) logger.info("${movie.title} session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session start time: ${movie.startTime}")
-
-    return onDay
+    return true
   }
 
-  internal fun isInExcludedPeriod(movie: Movie, excludedPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean
+  internal fun isInValidPeriod(movie: Movie, validPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean
   {
-    val period = excludedPeriods[movie.startTime.dayOfWeek]
+    val period = validPeriods[movie.startTime.dayOfWeek]
 
-    val inPeriod = if (period != null) {
-      return !(movie.startTime.toLocalTime().plusSeconds(1).isAfter(period.first)
+    val inValidPeriod = if (period != null)
+    {
+      (movie.startTime.toLocalTime().plusSeconds(1).isAfter(period.first)
           && movie.endTime.toLocalTime().minusSeconds(1).isBefore(period.second))
     }
     else
     {
-      false
+      true
     }
 
-    if (inPeriod) logger.info("${movie.title} session is in excluded period, skipping. Session start time: ${movie.startTime}")
+    if (!inValidPeriod) logger.debug("${movie.title} session is in excluded period, skipping. Session start time: ${movie.startTime}")
 
-    return inPeriod
+    return inValidPeriod
   }
 
   internal fun hasClashingSessions(schedule: MutableList<Movie>): Boolean
