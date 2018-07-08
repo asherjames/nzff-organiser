@@ -15,7 +15,7 @@ import java.time.Month
 
 interface NzffScheduler
 {
-  fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): ScheduleResult
+  fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>): ScheduleResult
 }
 
 @Service
@@ -23,13 +23,7 @@ class NzffSchedulerImpl : NzffScheduler
 {
   private val logger = LoggerFactory.getLogger(NzffSchedulerImpl::class.java)
 
-  private val jimInvalidDays = listOf<LocalDate>(
-      LocalDate.of(2018, Month.JULY, 19),
-      LocalDate.of(2018, Month.JULY, 20),
-      LocalDate.of(2018, Month.JULY, 21)
-  )
-
-  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): ScheduleResult
+  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>): ScheduleResult
   {
     try
     {
@@ -43,7 +37,7 @@ class NzffSchedulerImpl : NzffScheduler
           .toMap()
 
       val filteredTimes = allMovieTimes
-          .map { l -> l.filter { m -> isOnValidDay(m, excludedDays, jimMode) } }
+          .map { l -> l.filter { m -> isOnValidDay(m, excludedDays) } }
           .map { l -> l.filter { m -> isInValidPeriod(m, validPeriods) } }
           .filter { l -> l.isNotEmpty() }
 
@@ -73,7 +67,7 @@ class NzffSchedulerImpl : NzffScheduler
     }
   }
 
-  internal fun isOnValidDay(movie: Movie, excludedDays: List<DayOfWeek>, jimMode: Boolean): Boolean
+  internal fun isOnValidDay(movie: Movie, excludedDays: List<DayOfWeek>): Boolean
   {
     val onExcludedDay = excludedDays.contains(movie.startTime.dayOfWeek)
 
@@ -81,11 +75,6 @@ class NzffSchedulerImpl : NzffScheduler
     {
       logger.debug("${movie.title} session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session start time: ${movie.startTime}")
       return false
-    }
-
-    if (jimMode)
-    {
-      return !jimInvalidDays.contains(movie.startTime.toLocalDate())
     }
 
     return true

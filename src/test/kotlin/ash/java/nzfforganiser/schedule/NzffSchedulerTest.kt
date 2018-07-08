@@ -47,7 +47,7 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.MONDAY, excluded = true)).toExcludedDays()
 
-    val evaluations = schedule.map { m -> scheduler.isOnValidDay(m, filters, false) }
+    val evaluations = schedule.map { m -> scheduler.isOnValidDay(m, filters) }
 
     assertThat(evaluations).containsExactly(false, true, true)
   }
@@ -63,7 +63,7 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.TUESDAY, excluded = true)).toExcludedDays()
 
-    assertThat(schedule).allSatisfy { m -> !scheduler.isOnValidDay(m, filters, false) }
+    assertThat(schedule).allSatisfy { m -> !scheduler.isOnValidDay(m, filters) }
   }
 
   @Test
@@ -202,7 +202,7 @@ class NzffSchedulerTest
         ScheduleFilter(DayOfWeek.FRIDAY, excluded = true)
     )
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters, false) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters) }
   }
 
   @Test
@@ -226,7 +226,7 @@ class NzffSchedulerTest
         ScheduleFilter(DayOfWeek.MONDAY, excluded = true)
     )
 
-    assertThat(scheduler.findSchedule(movies, filters, false)
+    assertThat(scheduler.findSchedule(movies, filters)
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "C1")
@@ -271,7 +271,7 @@ class NzffSchedulerTest
             to = LocalTime.parse("10:00:00")
         ))
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters, false) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters) }
   }
 
   @Test
@@ -317,7 +317,7 @@ class NzffSchedulerTest
             to = LocalTime.parse("22:00:00")
         ))
 
-    assertThat(scheduler.findSchedule(movies, filters, false)
+    assertThat(scheduler.findSchedule(movies, filters)
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "C3", "D", "E")
@@ -378,7 +378,7 @@ class NzffSchedulerTest
         )
     )
 
-    assertThat(scheduler.findSchedule(movies, filters, false)
+    assertThat(scheduler.findSchedule(movies, filters)
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A1", "B1", "C", "D", "E")
@@ -393,7 +393,7 @@ class NzffSchedulerTest
         )
     )
 
-    assertThat(scheduler.findSchedule(movies, emptyList(), false).scheduleSuggestion)
+    assertThat(scheduler.findSchedule(movies, emptyList()).scheduleSuggestion)
         .containsOnly(createMovie("A", mondayMorning, mondayMorning.plusHours(2)))
   }
 
@@ -409,7 +409,7 @@ class NzffSchedulerTest
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
     )
 
-    assertThat(scheduler.findSchedule(movies, emptyList(), false)
+    assertThat(scheduler.findSchedule(movies, emptyList())
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "C")
@@ -434,33 +434,13 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.THURSDAY, excluded = true))
 
-    val result = scheduler.findSchedule(movies, filters, false)
+    val result = scheduler.findSchedule(movies, filters)
 
     assertThat(result.scheduleSuggestion.map { m -> m.title })
         .containsExactly("A", "B", "C")
 
     assertThat(result.unavailableMovies)
         .containsExactly("D")
-  }
-
-  @Test
-  fun `Jim invalid times are skipped`()
-  {
-    val invalidDate = LocalDateTime.parse("2018-07-20T09:00:00")
-
-    val movies = listOf(
-        listOf(
-            createMovie("A1", invalidDate, invalidDate.plusHours(2)),
-            createMovie("A2", mondayAfternoon, mondayAfternoon.plusHours(2))
-        ),
-        listOf(createMovie("B", mondayEvening, mondayEvening.plusHours(2))),
-        listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
-    )
-
-    assertThat(scheduler.findSchedule(movies, emptyList(), true)
-        .scheduleSuggestion
-        .map { m -> m.title })
-        .containsExactly("A2", "B", "C")
   }
 
   private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie
