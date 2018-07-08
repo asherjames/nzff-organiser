@@ -7,7 +7,6 @@ import ash.java.nzfforganiser.model.ScheduleFilter
 import ash.java.nzfforganiser.schedule.NzffScheduler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -42,7 +41,9 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
     val suggestion = scheduler.findSchedule(wishlistItemSessions, filters ?: emptyList(), jimMode)
 
     return ResponseEntity
-        .ok(NzffResponse(message = "Found schedule suggestion", movieList = suggestion))
+        .ok(NzffResponse(message = "Found schedule suggestion",
+            movieList = suggestion.scheduleSuggestion,
+            invalidMovies = suggestion.unavailableMovies))
   }
 
   @GetMapping("/ping")

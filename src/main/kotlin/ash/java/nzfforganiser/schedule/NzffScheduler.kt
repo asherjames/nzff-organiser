@@ -4,6 +4,7 @@ import ash.java.nzfforganiser.exception.NoAcceptableScheduleFoundException
 import ash.java.nzfforganiser.exception.TooManySchedulesException
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.ScheduleFilter
+import ash.java.nzfforganiser.model.ScheduleResult
 import com.google.common.collect.Lists
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -14,7 +15,7 @@ import java.time.Month
 
 interface NzffScheduler
 {
-  fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
+  fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): ScheduleResult
 }
 
 @Service
@@ -28,7 +29,7 @@ class NzffSchedulerImpl : NzffScheduler
       LocalDate.of(2018, Month.JULY, 21)
   )
 
-  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): List<Movie>
+  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>, jimMode: Boolean): ScheduleResult
   {
     try
     {
@@ -46,6 +47,13 @@ class NzffSchedulerImpl : NzffScheduler
           .map { l -> l.filter { m -> isInValidPeriod(m, validPeriods) } }
           .filter { l -> l.isNotEmpty() }
 
+      val unavailableMovies = allMovieTimes
+          .flatMap { l -> l.map { m -> m.title } }
+          .distinct()
+          .minus(
+              filteredTimes.map { l -> l.firstOrNull()?.title ?: ""}
+          )
+
       if (filteredTimes.isEmpty()) throw NoAcceptableScheduleFoundException()
 
       val schedules = Lists.cartesianProduct(filteredTimes)
@@ -53,7 +61,7 @@ class NzffSchedulerImpl : NzffScheduler
       for (schedule in schedules)
       {
         if (hasClashingSessions(schedule)) continue
-        return schedule
+        return ScheduleResult(schedule, unavailableMovies)
       }
 
       throw NoAcceptableScheduleFoundException()

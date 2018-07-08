@@ -49,7 +49,7 @@ class NzffSchedulerTest
 
     val evaluations = schedule.map { m -> scheduler.isOnValidDay(m, filters, false) }
 
-    assertThat(evaluations).containsExactly(true, false, false)
+    assertThat(evaluations).containsExactly(false, true, true)
   }
 
   @Test
@@ -227,6 +227,7 @@ class NzffSchedulerTest
     )
 
     assertThat(scheduler.findSchedule(movies, filters, false)
+        .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "C1")
   }
@@ -317,6 +318,7 @@ class NzffSchedulerTest
         ))
 
     assertThat(scheduler.findSchedule(movies, filters, false)
+        .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "C3", "D", "E")
   }
@@ -377,6 +379,7 @@ class NzffSchedulerTest
     )
 
     assertThat(scheduler.findSchedule(movies, filters, false)
+        .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A1", "B1", "C", "D", "E")
   }
@@ -390,7 +393,7 @@ class NzffSchedulerTest
         )
     )
 
-    assertThat(scheduler.findSchedule(movies, emptyList(), false))
+    assertThat(scheduler.findSchedule(movies, emptyList(), false).scheduleSuggestion)
         .containsOnly(createMovie("A", mondayMorning, mondayMorning.plusHours(2)))
   }
 
@@ -407,8 +410,37 @@ class NzffSchedulerTest
     )
 
     assertThat(scheduler.findSchedule(movies, emptyList(), false)
+        .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "C")
+  }
+
+  @Test
+  fun `unavailable movies are correctly identified`()
+  {
+    val movies = listOf(
+        listOf(
+            createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+            createMovie("A", mondayAfternoon, mondayAfternoon.plusHours(2))
+        ),
+        listOf(createMovie("B", mondayEvening, mondayEvening.plusHours(2))),
+        listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2))),
+        listOf(
+            createMovie("D", thursdayMorning, thursdayMorning.plusHours(2)),
+            createMovie("D", thursdayAfternoon, thursdayAfternoon.plusHours(2)),
+            createMovie("D", thursdayEvening, thursdayEvening.plusHours(2))
+        )
+    )
+
+    val filters = listOf(ScheduleFilter(DayOfWeek.THURSDAY, excluded = true))
+
+    val result = scheduler.findSchedule(movies, filters, false)
+
+    assertThat(result.scheduleSuggestion.map { m -> m.title })
+        .containsExactly("A", "B", "C")
+
+    assertThat(result.unavailableMovies)
+        .containsExactly("D")
   }
 
   @Test
@@ -426,6 +458,7 @@ class NzffSchedulerTest
     )
 
     assertThat(scheduler.findSchedule(movies, emptyList(), true)
+        .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "C")
   }
