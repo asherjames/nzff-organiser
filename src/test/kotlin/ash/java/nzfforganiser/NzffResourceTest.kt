@@ -54,17 +54,20 @@ class NzffResourceTest
         )
         .contentType(ContentType.JSON)
         .body("""
-          [
-            {
-              "day": "WEDNESDAY",
-              "excluded": true
-            },
-            {
-              "day": "FRIDAY",
-              "from": "09:00:00",
-              "to": "22:00:00"
-            }
-          ]
+          {
+            "excludedCinemas": ["HOLLYWOOD"],
+            "scheduleFilters": [
+              {
+                "day": "WEDNESDAY",
+                "excluded": true
+              },
+              {
+                "day": "FRIDAY",
+                "from": "09:00:00",
+                "to": "22:00:00"
+              }
+            ]
+          }
         """.trimIndent())
     .`when`()
         .post("$endpoint?id=123")

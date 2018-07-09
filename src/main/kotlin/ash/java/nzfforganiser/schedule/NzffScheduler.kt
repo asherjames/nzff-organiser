@@ -2,9 +2,7 @@ package ash.java.nzfforganiser.schedule
 
 import ash.java.nzfforganiser.exception.NoAcceptableScheduleFoundException
 import ash.java.nzfforganiser.exception.TooManySchedulesException
-import ash.java.nzfforganiser.model.Movie
-import ash.java.nzfforganiser.model.ScheduleFilter
-import ash.java.nzfforganiser.model.ScheduleResult
+import ash.java.nzfforganiser.model.*
 import com.google.common.collect.Lists
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -15,7 +13,7 @@ import java.time.Month
 
 interface NzffScheduler
 {
-  fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>): ScheduleResult
+  fun findSchedule(allMovieTimes: List<List<Movie>>, filters: ScheduleRequest): ScheduleResult
 }
 
 @Service
@@ -23,15 +21,15 @@ class NzffSchedulerImpl : NzffScheduler
 {
   private val logger = LoggerFactory.getLogger(NzffSchedulerImpl::class.java)
 
-  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: List<ScheduleFilter>): ScheduleResult
+  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: ScheduleRequest): ScheduleResult
   {
     try
     {
-      val excludedDays = filters
+      val excludedDays = filters.scheduleFilters
           .filter { f -> f.excluded }
           .map { f -> f.day }
 
-      val validPeriods = filters
+      val validPeriods = filters.scheduleFilters
           .filter { f -> !f.excluded }
           .map { it.day to Pair(it.from, it.to) }
           .toMap()
@@ -39,6 +37,7 @@ class NzffSchedulerImpl : NzffScheduler
       val filteredTimes = allMovieTimes
           .map { l -> l.filter { m -> isOnValidDay(m, excludedDays) } }
           .map { l -> l.filter { m -> isInValidPeriod(m, validPeriods) } }
+          .map { l -> l.filter { m -> isAtValidCinema(m, filters.excludedCinemas) } }
           .filter { l -> l.isNotEmpty() }
 
       val unavailableMovies = allMovieTimes
@@ -97,6 +96,19 @@ class NzffSchedulerImpl : NzffScheduler
     if (!inValidPeriod) logger.debug("${movie.title} session is in excluded period, skipping. Session start time: ${movie.startTime}")
 
     return inValidPeriod
+  }
+
+  internal fun isAtValidCinema(movie: Movie, excludedCinemas: List<Cinema>): Boolean
+  {
+    val atExcludedCinema = excludedCinemas.contains(movie.cinema)
+
+    if (atExcludedCinema)
+    {
+      logger.debug("${movie.title} session is at excluded cinema (${movie.cinema}), skipping.")
+      return false
+    }
+
+    return true
   }
 
   internal fun hasClashingSessions(schedule: MutableList<Movie>): Boolean

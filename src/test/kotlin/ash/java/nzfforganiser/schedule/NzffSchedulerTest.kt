@@ -4,6 +4,7 @@ import ash.java.nzfforganiser.exception.NoAcceptableScheduleFoundException
 import ash.java.nzfforganiser.model.Cinema
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.ScheduleFilter
+import ash.java.nzfforganiser.model.ScheduleRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -203,7 +204,8 @@ class NzffSchedulerTest
         ScheduleFilter(DayOfWeek.FRIDAY, excluded = true)
     )
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies,
+        ScheduleRequest(scheduleFilters = filters)) }
   }
 
   @Test
@@ -227,7 +229,7 @@ class NzffSchedulerTest
         ScheduleFilter(DayOfWeek.MONDAY, excluded = true)
     )
 
-    assertThat(scheduler.findSchedule(movies, filters)
+    assertThat(scheduler.findSchedule(movies, ScheduleRequest(scheduleFilters = filters))
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "C1")
@@ -272,7 +274,8 @@ class NzffSchedulerTest
             to = LocalTime.parse("10:00:00")
         ))
 
-    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies, filters) }
+    assertThrows<NoAcceptableScheduleFoundException> { scheduler.findSchedule(movies,
+        ScheduleRequest(scheduleFilters = filters)) }
   }
 
   @Test
@@ -318,7 +321,7 @@ class NzffSchedulerTest
             to = LocalTime.parse("22:00:00")
         ))
 
-    assertThat(scheduler.findSchedule(movies, filters)
+    assertThat(scheduler.findSchedule(movies, ScheduleRequest(scheduleFilters = filters))
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "C3", "D", "E")
@@ -379,7 +382,7 @@ class NzffSchedulerTest
         )
     )
 
-    assertThat(scheduler.findSchedule(movies, filters)
+    assertThat(scheduler.findSchedule(movies, ScheduleRequest(scheduleFilters = filters))
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A1", "B1", "C", "D", "E")
@@ -394,7 +397,7 @@ class NzffSchedulerTest
         )
     )
 
-    assertThat(scheduler.findSchedule(movies, emptyList()).scheduleSuggestion)
+    assertThat(scheduler.findSchedule(movies, ScheduleRequest()).scheduleSuggestion)
         .containsOnly(createMovie("A", mondayMorning, mondayMorning.plusHours(2)))
   }
 
@@ -410,7 +413,7 @@ class NzffSchedulerTest
         listOf(createMovie("C", fridayMorning, fridayMorning.plusHours(2)))
     )
 
-    assertThat(scheduler.findSchedule(movies, emptyList())
+    assertThat(scheduler.findSchedule(movies, ScheduleRequest())
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "C")
@@ -435,13 +438,38 @@ class NzffSchedulerTest
 
     val filters = listOf(ScheduleFilter(DayOfWeek.THURSDAY, excluded = true))
 
-    val result = scheduler.findSchedule(movies, filters)
+    val result = scheduler.findSchedule(movies, ScheduleRequest(scheduleFilters = filters))
 
     assertThat(result.scheduleSuggestion.map { m -> m.title })
         .containsExactly("A", "B", "C")
 
     assertThat(result.unavailableMovies)
         .containsExactly("D")
+  }
+
+  @Test
+  fun `movies at excluded cinemas are filtered out`()
+  {
+    val movies = listOf(
+        listOf(
+            createMovieAtCinema("A1", mondayEvening, mondayEvening.plusHours(2), Cinema.HOLLYWOOD),
+            createMovieAtCinema("A2", mondayAfternoon, mondayAfternoon.plusHours(2), Cinema.CIVIC)
+        ),
+        listOf(createMovieAtCinema("B", mondayEvening, mondayEvening.plusHours(2), Cinema.ACADEMY)),
+        listOf(createMovieAtCinema("C", fridayMorning, fridayMorning.plusHours(2), Cinema.RIALTO)),
+        listOf(
+            createMovieAtCinema("D1", thursdayMorning, thursdayMorning.plusHours(2), Cinema.HOLLYWOOD),
+            createMovieAtCinema("D2", thursdayAfternoon, thursdayAfternoon.plusHours(2), Cinema.RIALTO),
+            createMovieAtCinema("D3", thursdayEvening, thursdayEvening.plusHours(2), Cinema.UNKNOWN)
+        )
+    )
+
+    val excludedCinemas = listOf(Cinema.HOLLYWOOD, Cinema.RIALTO)
+
+    assertThat(scheduler.findSchedule(movies, ScheduleRequest(excludedCinemas = excludedCinemas))
+        .scheduleSuggestion
+        .map { m -> m.title })
+        .containsExactly("A2", "B", "D3")
   }
 
   private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie
@@ -451,6 +479,16 @@ class NzffSchedulerTest
         thumbnailUrl = "",
         startTime = startTime,
         endTime = endTime)
+  }
+
+  private fun createMovieAtCinema(title: String, startTime: LocalDateTime, endTime: LocalDateTime, cinema: Cinema): Movie
+  {
+    return Movie(title = title,
+        websiteUrl = "",
+        thumbnailUrl = "",
+        startTime = startTime,
+        endTime = endTime,
+        cinema = cinema)
   }
 
   private fun List<ScheduleFilter>.toExcludedDays(): List<DayOfWeek>

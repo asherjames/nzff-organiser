@@ -3,7 +3,7 @@ package ash.java.nzfforganiser.resource
 import ash.java.nzfforganiser.dao.NzffDao
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.NzffResponse
-import ash.java.nzfforganiser.model.ScheduleFilter
+import ash.java.nzfforganiser.model.ScheduleRequest
 import ash.java.nzfforganiser.schedule.NzffScheduler
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,7 +21,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
   private val logger = LoggerFactory.getLogger(NzffResourceImpl::class.java)
 
   override fun getOrganisedWishlist(@RequestParam("id") id: String,
-                                    @RequestBody(required = false) filters: List<ScheduleFilter>?): ResponseEntity<NzffResponse>
+                                    @RequestBody(required = false) requestFilters: ScheduleRequest?): ResponseEntity<NzffResponse>
   {
     val wishlist = nzffDao.getWishlist(id)
 
@@ -37,7 +37,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
         .map { w -> nzffDao.getMovieTimes(w) }
         .toList()
 
-    val suggestion = scheduler.findSchedule(wishlistItemSessions, filters ?: emptyList())
+    val suggestion = scheduler.findSchedule(wishlistItemSessions, requestFilters ?: ScheduleRequest())
 
     return ResponseEntity
         .ok(NzffResponse(message = "Found schedule suggestion",

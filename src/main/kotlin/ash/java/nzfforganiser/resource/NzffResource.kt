@@ -1,7 +1,7 @@
 package ash.java.nzfforganiser.resource
 
 import ash.java.nzfforganiser.model.NzffResponse
-import ash.java.nzfforganiser.model.ScheduleFilter
+import ash.java.nzfforganiser.model.ScheduleRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -12,5 +12,5 @@ interface NzffResource
 {
   @PostMapping
   @ResponseBody
-  fun getOrganisedWishlist(id: String, filters: List<ScheduleFilter>?): ResponseEntity<NzffResponse>
+  fun getOrganisedWishlist(id: String, requestFilters: ScheduleRequest?): ResponseEntity<NzffResponse>
 }
