@@ -39,6 +39,9 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    junitVer = '5.2.0'
+}
 
 dependencies {
     compile 'com.github.ben-manes.caffeine:caffeine:2.6.2'
@@ -52,8 +55,13 @@ dependencies {
     compile 'org.jsoup:jsoup:1.11.3'
 
     testCompile 'io.rest-assured:spring-mock-mvc:3.1.0'
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0'
     testCompile('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'junit'
     }
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVer"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVer"
+}
+
+test {
+    useJUnitPlatform()
 }
