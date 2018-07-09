@@ -1,5 +1,6 @@
 package ash.java.nzfforganiser.dao
 
+import ash.java.nzfforganiser.model.Cinema
 import ash.java.nzfforganiser.model.WishlistItem
 import ash.java.nzfforganiser.model.Movie
 import org.slf4j.LoggerFactory
@@ -98,13 +99,16 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
     {
       val startDateElement = session.getElementsByAttributeValue(itempropAttribute, "startDate")
       val startDate = LocalDateTime.parse(startDateElement.attr(contentAttribute))
+      val locationElement = session.getElementsByAttributeValue(itempropAttribute, "location")
+      val cinema = Cinema.findValue(locationElement.text())
 
       movieTimes.add(Movie(
           title = wishlistItem.title,
           websiteUrl = wishlistItem.websiteUrl,
           thumbnailUrl = thumbnailUrl,
           startTime = startDate,
-          endTime = startDate.plus(duration)
+          endTime = startDate.plus(duration),
+          cinema = cinema
       ))
     }
 

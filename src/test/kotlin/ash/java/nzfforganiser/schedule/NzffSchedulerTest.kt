@@ -1,6 +1,7 @@
 package ash.java.nzfforganiser.schedule
 
 import ash.java.nzfforganiser.exception.NoAcceptableScheduleFoundException
+import ash.java.nzfforganiser.model.Cinema
 import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.ScheduleFilter
 import org.assertj.core.api.Assertions.assertThat
