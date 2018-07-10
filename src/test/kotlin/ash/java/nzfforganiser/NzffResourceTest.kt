@@ -43,7 +43,7 @@ class NzffResourceTest
   }
 
   @Test
-  fun `filters are parsed without error`()
+  fun `supplying only excluded cinemas is still accepted`()
   {
     given()
         .standaloneSetup(
@@ -55,7 +55,50 @@ class NzffResourceTest
         .contentType(ContentType.JSON)
         .body("""
           {
-            "excludedCinemas": ["HOLLYWOOD"],
+            "excludedCinemas": ["HOLLYWOOD"]
+          }
+        """.trimIndent())
+    .`when`()
+        .post("$endpoint?id=123")
+    .then()
+        .statusCode(404)
+  }
+
+  @Test
+  fun `supplying only session gap is still accepted`()
+  {
+    given()
+        .standaloneSetup(
+            NzffResourceImpl(
+                EmptyWishlistNzffDao(),
+                NzffSchedulerImpl()
+            )
+        )
+        .contentType(ContentType.JSON)
+        .body("""
+          {
+            "sessionGap": 30
+          }
+        """.trimIndent())
+    .`when`()
+        .post("$endpoint?id=123")
+    .then()
+        .statusCode(404)
+  }
+
+  @Test
+  fun `supplying only schedule filters is still accepted`()
+  {
+    given()
+        .standaloneSetup(
+            NzffResourceImpl(
+                EmptyWishlistNzffDao(),
+                NzffSchedulerImpl()
+            )
+        )
+        .contentType(ContentType.JSON)
+        .body("""
+          {
             "scheduleFilters": [
               {
                 "day": "WEDNESDAY",
@@ -69,9 +112,9 @@ class NzffResourceTest
             ]
           }
         """.trimIndent())
-    .`when`()
+        .`when`()
         .post("$endpoint?id=123")
-    .then()
+        .then()
         .statusCode(404)
   }
 }

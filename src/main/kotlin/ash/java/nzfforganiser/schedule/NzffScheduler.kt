@@ -53,7 +53,7 @@ class NzffSchedulerImpl : NzffScheduler
 
       for (schedule in schedules)
       {
-        if (hasClashingSessions(schedule)) continue
+        if (hasClashingSessions(schedule, filters.sessionGap)) continue
         return ScheduleResult(schedule, unavailableMovies)
       }
 
@@ -111,7 +111,7 @@ class NzffSchedulerImpl : NzffScheduler
     return true
   }
 
-  internal fun hasClashingSessions(schedule: MutableList<Movie>): Boolean
+  internal fun hasClashingSessions(schedule: MutableList<Movie>, sessionGap: Long): Boolean
   {
     if (schedule.size <= 1) return false
 
@@ -121,7 +121,7 @@ class NzffSchedulerImpl : NzffScheduler
     for (i in 1 until sortedSchedule.size)
     {
       // Skip schedules with clashing sessions
-      if (sortedSchedule[i - 1].endTime.isAfter(sortedSchedule[i].startTime))
+      if (sortedSchedule[i - 1].endTime.plusMinutes(sessionGap).isAfter(sortedSchedule[i].startTime))
       {
         logger.debug("Schedule contains clash:\n${sortedSchedule[i - 1]}\n\tclashes with\n${sortedSchedule[i]} in schedule, skipping")
         return true

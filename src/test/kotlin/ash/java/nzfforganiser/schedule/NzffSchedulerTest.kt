@@ -164,7 +164,7 @@ class NzffSchedulerTest
         createMovie("E", fridayEvening, fridayEvening.plusHours(2))
     )
 
-    assertThat(scheduler.hasClashingSessions(schedule)).isFalse()
+    assertThat(scheduler.hasClashingSessions(schedule, 0)).isFalse()
   }
 
   @Test
@@ -178,7 +178,7 @@ class NzffSchedulerTest
         createMovie("E", fridayEvening, fridayEvening.plusHours(2))
     )
 
-    assertThat(scheduler.hasClashingSessions(schedule)).isTrue()
+    assertThat(scheduler.hasClashingSessions(schedule, 0)).isTrue()
   }
 
   @Test
@@ -470,6 +470,43 @@ class NzffSchedulerTest
         .scheduleSuggestion
         .map { m -> m.title })
         .containsExactly("A2", "B", "D3")
+  }
+
+  @Test
+  fun `movies closer than session gap are skipped`()
+  {
+    val schedule = mutableListOf(
+        createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
+        createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
+        createMovie("C", fridayMorning, fridayMorning.plusHours(2)),
+        createMovie("D", fridayMorning.plusMinutes(140), fridayMorning.plusMinutes(240)),
+        createMovie("E", fridayEvening, fridayEvening.plusHours(2))
+    )
+
+    assertThat(scheduler.hasClashingSessions(schedule, 30)).isTrue()
+  }
+
+  @Test
+  fun `schedules that violate session gap are skipped`()
+  {
+    val movies = listOf(
+        listOf(
+            createMovieAtCinema("A1", mondayEvening, mondayEvening.plusHours(2), Cinema.HOLLYWOOD),
+            createMovieAtCinema("A2", mondayAfternoon, mondayAfternoon.plusHours(2), Cinema.CIVIC)
+        ),
+        listOf(createMovieAtCinema("B", mondayEvening.plusMinutes(130), mondayEvening.plusMinutes(230), Cinema.ACADEMY)),
+        listOf(createMovieAtCinema("C", fridayAfternoon.plusMinutes(125), fridayAfternoon.plusMinutes(225), Cinema.RIALTO)),
+        listOf(
+            createMovieAtCinema("D1", mondayAfternoon.plusMinutes(14), mondayAfternoon.plusMinutes(114), Cinema.HOLLYWOOD),
+            createMovieAtCinema("D2", fridayAfternoon, fridayAfternoon.plusHours(2), Cinema.RIALTO),
+            createMovieAtCinema("D3", thursdayEvening, thursdayEvening.plusHours(2), Cinema.UNKNOWN)
+        )
+    )
+
+    assertThat(scheduler.findSchedule(movies, ScheduleRequest(sessionGap = 15))
+        .scheduleSuggestion
+        .map { m -> m.title })
+        .containsExactly("A2", "B", "C", "D3")
   }
 
   private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie
