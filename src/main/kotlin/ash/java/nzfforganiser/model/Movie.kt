@@ -1,5 +1,6 @@
 package ash.java.nzfforganiser.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDateTime
 
 data class Movie(val title: String,
@@ -7,4 +8,6 @@ data class Movie(val title: String,
                  val thumbnailUrl: String,
                  val startTime: LocalDateTime,
                  val endTime: LocalDateTime,
-                 val cinema: Cinema = Cinema.UNKNOWN)
+                 @JsonIgnore
+                 val cinema: Cinema = Cinema.UNKNOWN,
+                 val cinemaDisplayName: String = Cinema.UNKNOWN.displayName)

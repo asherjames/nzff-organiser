@@ -110,7 +110,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
       val startDateElement = session.getElementsByAttributeValue(itempropAttribute, "startDate")
       val startDate = LocalDateTime.parse(startDateElement.attr(contentAttribute))
       val locationElement = session.getElementsByAttributeValue(itempropAttribute, "location")
-      val cinema = Cinema.findValue(locationElement.text())
+      val cinema = Cinema.findCinema(locationElement.text())
 
       movieTimes.add(Movie(
           title = wishlistMovie.title,
@@ -118,7 +118,8 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
           thumbnailUrl = thumbnailUrl,
           startTime = startDate,
           endTime = startDate.plus(duration),
-          cinema = cinema
+          cinema = cinema,
+          cinemaDisplayName = cinema.displayName
       ))
     }
 
