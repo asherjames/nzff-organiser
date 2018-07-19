@@ -7,9 +7,7 @@ import com.google.common.collect.Lists
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.LocalTime
-import java.time.Month
 
 interface NzffScheduler
 {

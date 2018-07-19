@@ -1,8 +1,9 @@
 package ash.java.nzfforganiser.dao
 
 import ash.java.nzfforganiser.model.Cinema
-import ash.java.nzfforganiser.model.WishlistItem
+import ash.java.nzfforganiser.model.WishlistMovie
 import ash.java.nzfforganiser.model.Movie
+import ash.java.nzfforganiser.model.Wishlist
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -14,9 +15,9 @@ import java.time.format.DateTimeParseException
 
 interface NzffDao
 {
-  fun getWishlist(id: String): List<WishlistItem>
+  fun getWishlist(id: String): Wishlist
 
-  fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
+  fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie>
 }
 
 @Service
@@ -29,6 +30,8 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   private val logger = LoggerFactory.getLogger(NzffDaoImpl::class.java)
 
   private val aTag = "a"
+  private val headTag = "head"
+  private val titleTag = "title"
   private val imgTag = "img"
 
   private val contentAttribute = "content"
@@ -43,16 +46,20 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   private val filmDetailSelect = "[class=\"detail\"]"
 
   @Cacheable("wishlists")
-  override fun getWishlist(id: String): List<WishlistItem>
+  override fun getWishlist(id: String): Wishlist
   {
     val doc = scraperClient.getDocument("$nzffBaseUrl$nzffWishlistPath$id")
+    val headElement = doc.getElementsByTag(headTag).first()
+    val titleText = headElement.getElementsByTag(titleTag).text()
+    val name = titleText.split(delimiters = *charArrayOf(' ')).first()
+
     val wishlistElements = doc.getElementsByClass(wishlistItemClass)
-    val wishlist = mutableListOf<WishlistItem>()
+    val wishlistMovies = mutableListOf<WishlistMovie>()
 
     if (wishlistElements.isEmpty())
     {
       logger.info("Could not find any wishlist elements")
-      return wishlist
+      return Wishlist()
     }
 
     for (wishlistElement in wishlistElements)
@@ -60,19 +67,22 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
       val titleElement = wishlistElement.getElementsByClass(sessionInfoClass).first()
       val link = titleElement.getElementsByTag(aTag)
 
-      wishlist.add(WishlistItem(
+      wishlistMovies.add(WishlistMovie(
           title = link.text(),
           websiteUrl = link.attr(hrefAttribute)
       ))
     }
 
-    return wishlist.distinctBy { w -> w.title }
+    return Wishlist(
+        name = name,
+        movies = wishlistMovies.distinctBy { w -> w.title }
+    )
   }
 
-  @Cacheable("sessions", key = "#wishlistItem.title")
-  override fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
+  @Cacheable("sessions", key = "#wishlistMovie.title")
+  override fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie>
   {
-    val doc = scraperClient.getDocument("$nzffBaseUrl${wishlistItem.websiteUrl}")
+    val doc = scraperClient.getDocument("$nzffBaseUrl${wishlistMovie.websiteUrl}")
     val imageElement = doc.select(mediaClassSelect).first()
     val thumbnailUrl = imageElement.getElementsByTag(imgTag).attr(srcAttribute)
     val detailElements = doc.select(filmDetailSelect)
@@ -103,8 +113,8 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
       val cinema = Cinema.findValue(locationElement.text())
 
       movieTimes.add(Movie(
-          title = wishlistItem.title,
-          websiteUrl = wishlistItem.websiteUrl,
+          title = wishlistMovie.title,
+          websiteUrl = wishlistMovie.websiteUrl,
           thumbnailUrl = thumbnailUrl,
           startTime = startDate,
           endTime = startDate.plus(duration),

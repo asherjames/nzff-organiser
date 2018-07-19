@@ -117,4 +117,38 @@ class NzffResourceTest
         .then()
         .statusCode(404)
   }
+
+  @Test
+  fun `supplying all filters is accepted`()
+  {
+    given()
+        .standaloneSetup(
+            NzffResourceImpl(
+                EmptyWishlistNzffDao(),
+                NzffSchedulerImpl()
+            )
+        )
+        .contentType(ContentType.JSON)
+        .body("""
+          {
+            "excludedCinemas": ["HOLLYWOOD"],
+            "sessionGap": 30,
+            "scheduleFilters": [
+              {
+                "day": "WEDNESDAY",
+                "excluded": true
+              },
+              {
+                "day": "FRIDAY",
+                "from": "09:00:00",
+                "to": "22:00:00"
+              }
+            ]
+          }
+        """.trimIndent())
+        .`when`()
+        .post("$endpoint?id=123")
+        .then()
+        .statusCode(404)
+  }
 }

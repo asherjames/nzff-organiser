@@ -25,7 +25,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
   {
     val wishlist = nzffDao.getWishlist(id)
 
-    if (wishlist.isEmpty())
+    if (wishlist.movies.isEmpty())
     {
       logger.info("Wishlist was empty, returning 404")
       return ResponseEntity
@@ -33,7 +33,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
           .body(NzffResponse(message = "Wishlist not found or is empty"))
     }
 
-    val wishlistItemSessions: List<List<Movie>> = wishlist
+    val wishlistItemSessions: List<List<Movie>> = wishlist.movies
         .map { w -> nzffDao.getMovieTimes(w) }
         .toList()
 
@@ -41,6 +41,7 @@ class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
 
     return ResponseEntity
         .ok(NzffResponse(message = "Found schedule suggestion",
+            name = wishlist.name,
             movieList = suggestion.scheduleSuggestion,
             invalidMovies = suggestion.unavailableMovies))
   }

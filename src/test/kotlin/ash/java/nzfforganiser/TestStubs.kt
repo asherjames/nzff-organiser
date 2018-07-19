@@ -3,7 +3,8 @@ package ash.java.nzfforganiser
 import ash.java.nzfforganiser.dao.NzffDao
 import ash.java.nzfforganiser.dao.ScraperClient
 import ash.java.nzfforganiser.model.Movie
-import ash.java.nzfforganiser.model.WishlistItem
+import ash.java.nzfforganiser.model.Wishlist
+import ash.java.nzfforganiser.model.WishlistMovie
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
@@ -37,12 +38,12 @@ class FilmInfoScraperClientStub : ScraperClient
 
 class EmptyWishlistNzffDao : NzffDao
 {
-  override fun getWishlist(id: String): List<WishlistItem>
+  override fun getWishlist(id: String): Wishlist
   {
-    return emptyList()
+    return Wishlist()
   }
 
-  override fun getMovieTimes(wishlistItem: WishlistItem): List<Movie>
+  override fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie>
   {
     TODO("not implemented")
   }

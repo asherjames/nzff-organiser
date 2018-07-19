@@ -3,7 +3,7 @@ package ash.java.nzfforganiser.dao
 import ash.java.nzfforganiser.FilmInfoScraperClientStub
 import ash.java.nzfforganiser.WishlistScraperClientStub
 import ash.java.nzfforganiser.WishlistScraperClientStub_Duplicates
-import ash.java.nzfforganiser.model.WishlistItem
+import ash.java.nzfforganiser.model.WishlistMovie
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -19,7 +19,7 @@ class NzffDaoTest
   private val wishlist_duplicates = wishlistNzffDao_Duplicates.getWishlist("")
 
   private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), "", "")
-  private val filmInfo = filmInfoNzffDao.getMovieTimes(WishlistItem(
+  private val filmInfo = filmInfoNzffDao.getMovieTimes(WishlistMovie(
       title = "The Lobster",
       websiteUrl = "/the-lobster"
   ))
@@ -27,19 +27,26 @@ class NzffDaoTest
   @Test
   fun `document loads successfully`()
   {
-    assertThat(wishlist).isNotEmpty
+    assertThat(wishlist.name).isNotBlank()
+    assertThat(wishlist.movies).isNotEmpty
+  }
+
+  @Test
+  fun `wishlist name has correct value`()
+  {
+    assertThat(wishlist.name).isEqualTo("James")
   }
 
   @Test
   fun `wishlist is correct length`()
   {
-    assertThat(wishlist.size).isEqualTo(14)
+    assertThat(wishlist.movies.size).isEqualTo(14)
   }
 
   @Test
   fun `wishlist movies have correct titles`()
   {
-    assertThat(wishlist.map { m -> m.title })
+    assertThat(wishlist.movies.map { m -> m.title })
         .containsExactly(
             "The Lobster",
             "Welcome to Leith",
@@ -61,7 +68,7 @@ class NzffDaoTest
   @Test
   fun `movies have correct hrefs`()
   {
-    assertThat(wishlist.map { m -> m.websiteUrl })
+    assertThat(wishlist.movies.map { m -> m.websiteUrl })
         .containsExactly(
             "https://www.nziff.co.nz/2015/auckland/the-lobster/",
             "https://www.nziff.co.nz/2015/auckland/welcome-to-leith/",
@@ -130,7 +137,7 @@ class NzffDaoTest
   @Test
   fun `wishlist duplicates are removed`()
   {
-    assertThat(wishlist_duplicates.map { w -> w.title })
+    assertThat(wishlist_duplicates.movies.map { w -> w.title })
         .containsExactly(
             "Birds of Passage",
             "First Reformed",
