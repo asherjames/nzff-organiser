@@ -1,8 +1,6 @@
 package ash.java.nzfforganiser.dao
 
-import ash.java.nzfforganiser.FilmInfoScraperClientStub
-import ash.java.nzfforganiser.WishlistScraperClientStub
-import ash.java.nzfforganiser.WishlistScraperClientStub_Duplicates
+import ash.java.nzfforganiser.*
 import ash.java.nzfforganiser.model.WishlistMovie
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -12,13 +10,16 @@ import java.time.LocalDateTime
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NzffDaoTest
 {
-  private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), "", "")
+  private val cacheConfig = CacheConfig(0, 0)
+  private val config = NzffOrgConfig("", "", cacheConfig, cacheConfig)
+
+  private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), config)
   private val wishlist = wishlistNzffDao.getWishlist("")
 
-  private val wishlistNzffDao_Duplicates = NzffDaoImpl(WishlistScraperClientStub_Duplicates(), "", "")
+  private val wishlistNzffDao_Duplicates = NzffDaoImpl(WishlistScraperClientStub_Duplicates(), config)
   private val wishlist_duplicates = wishlistNzffDao_Duplicates.getWishlist("")
 
-  private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), "", "")
+  private val filmInfoNzffDao = NzffDaoImpl(FilmInfoScraperClientStub(), config)
   private val filmInfo = filmInfoNzffDao.getMovieTimes(WishlistMovie(
       title = "The Lobster",
       websiteUrl = "/the-lobster"

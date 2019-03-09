@@ -1,5 +1,7 @@
 package ash.java.nzfforganiser.dao
 
+import ash.java.nzfforganiser.CacheManagerFactory
+import ash.java.nzfforganiser.NzffOrgConfig
 import ash.java.nzfforganiser.model.Cinema
 import ash.java.nzfforganiser.model.WishlistMovie
 import ash.java.nzfforganiser.model.Movie
@@ -22,10 +24,7 @@ interface NzffDao
 
 @Service
 class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClient,
-                                         @Value("\${nzff.wishlist.path}")
-                                         private val nzffWishlistPath: String,
-                                         @Value("\${nzff.base.url}")
-                                         private val nzffBaseUrl: String) : NzffDao
+                                         private val config: NzffOrgConfig) : NzffDao
 {
   private val logger = LoggerFactory.getLogger(NzffDaoImpl::class.java)
 
@@ -45,10 +44,10 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   private val mediaClassSelect = "[class=\"media\"]"
   private val filmDetailSelect = "[class=\"detail\"]"
 
-  @Cacheable("wishlists")
+  @Cacheable(CacheManagerFactory.WISHLISTS)
   override fun getWishlist(id: String): Wishlist
   {
-    val doc = scraperClient.getDocument("$nzffBaseUrl$nzffWishlistPath$id")
+    val doc = scraperClient.getDocument("${config.nzffBase}${config.nzffPath}$id")
     val headElement = doc.getElementsByTag(headTag).first()
     val titleText = headElement.getElementsByTag(titleTag).text()
     val name = titleText.split(delimiters = *charArrayOf(' ')).first()
@@ -79,10 +78,10 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
     )
   }
 
-  @Cacheable("sessions", key = "#wishlistMovie.title")
+  @Cacheable(CacheManagerFactory.SESSIONS, key = "#wishlistMovie.title")
   override fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie>
   {
-    val doc = scraperClient.getDocument("$nzffBaseUrl${wishlistMovie.websiteUrl}")
+    val doc = scraperClient.getDocument("${config.nzffBase}${wishlistMovie.websiteUrl}")
     val imageElement = doc.select(mediaClassSelect).first()
     val thumbnailUrl = imageElement.getElementsByTag(imgTag).attr(srcAttribute)
     val detailElements = doc.select(filmDetailSelect)
