@@ -10,8 +10,7 @@ import java.time.LocalDateTime
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class NzffDaoTest
 {
-  private val cacheConfig = CacheConfig(0, 0)
-  private val config = NzffOrgConfig("", "", cacheConfig, cacheConfig)
+  private val config = NzffOrgConfig()
 
   private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), config)
   private val wishlist = wishlistNzffDao.getWishlist("")

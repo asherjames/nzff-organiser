@@ -18,10 +18,4 @@
 *.ipr
 /out/
 
-### NetBeans ###
-/nbproject/private/
-/build/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+docker/*.jar

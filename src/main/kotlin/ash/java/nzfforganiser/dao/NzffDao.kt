@@ -8,7 +8,6 @@ import ash.java.nzfforganiser.model.Movie
 import ash.java.nzfforganiser.model.Wishlist
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -47,7 +46,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   @Cacheable(CacheManagerFactory.WISHLISTS)
   override fun getWishlist(id: String): Wishlist
   {
-    val doc = scraperClient.getDocument("${config.nzffBase}${config.nzffPath}$id")
+    val doc = scraperClient.getDocument("${config.baseUrl}${config.path}$id")
     val headElement = doc.getElementsByTag(headTag).first()
     val titleText = headElement.getElementsByTag(titleTag).text()
     val name = titleText.split(delimiters = *charArrayOf(' ')).first()
@@ -81,7 +80,7 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
   @Cacheable(CacheManagerFactory.SESSIONS, key = "#wishlistMovie.title")
   override fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie>
   {
-    val doc = scraperClient.getDocument("${config.nzffBase}${wishlistMovie.websiteUrl}")
+    val doc = scraperClient.getDocument("${config.baseUrl}${wishlistMovie.websiteUrl}")
     val imageElement = doc.select(mediaClassSelect).first()
     val thumbnailUrl = imageElement.getElementsByTag(imgTag).attr(srcAttribute)
     val detailElements = doc.select(filmDetailSelect)

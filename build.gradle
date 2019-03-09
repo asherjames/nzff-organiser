@@ -5,8 +5,10 @@ buildscript {
   }
   repositories {
     mavenCentral()
+    jcenter()
   }
   dependencies {
+    classpath("com.avast.gradle:gradle-docker-compose-plugin:0.9.1")
     classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
@@ -18,10 +20,24 @@ apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'docker-compose'
 
 group = 'ash.java'
 version = '1.0.0'
 sourceCompatibility = 1.8
+
+dockerCompose {
+  useComposeFiles = ['docker/docker-compose.yml']
+}
+
+task copyJar(type: Copy) {
+  from 'build/libs'
+  into 'docker'
+  include '*.jar'
+}
+
+composeUp.dependsOn(build)
+composeUp.dependsOn(copyJar)
 
 compileKotlin {
   kotlinOptions {

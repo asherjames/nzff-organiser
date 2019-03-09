@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit
 
 @Configuration
-@EnableConfigurationProperties(NzffOrgConfig::class)
 class CacheManagerFactory @Autowired constructor(private val config: NzffOrgConfig)
 {
   private val logger = LoggerFactory.getLogger(CacheManagerFactory::class.java)
@@ -45,7 +44,7 @@ class CacheManagerFactory @Autowired constructor(private val config: NzffOrgConf
     return cacheManager
   }
 
-  private fun createCache(name: String, cacheConfig: CacheConfig): CaffeineCache
+  private fun createCache(name: String, cacheConfig: NzffOrgConfig.CacheConfig): CaffeineCache
   {
     return CaffeineCache(name, Caffeine.newBuilder()
         .expireAfterAccess(cacheConfig.expireSec, TimeUnit.SECONDS)

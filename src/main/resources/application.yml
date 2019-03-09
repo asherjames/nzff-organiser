@@ -6,13 +6,13 @@ server.port: ${PORT:5000}
 spring.profiles.active: ${SPRING_PROF:dev}
 
 # App config
-nzffPath: "/2018/auckland/wishlist/"
-nzffBase: "https://www.nziff.co.nz"
+nzff.path: "/2018/auckland/wishlist/"
+nzff.baseUrl: "https://www.nziff.co.nz"
 
-wishlistCacheConfig:
+nzff.wishlistCacheConfig:
   expireSec: 30
   maxSize: 100
 
-sessionCacheConfig:
+nzff.sessionCacheConfig:
   expireSec: 14400 # 4 hours
   maxSize: 100
