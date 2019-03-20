@@ -30,14 +30,14 @@ dockerCompose {
   useComposeFiles = ['docker/docker-compose.yml']
 }
 
-task copyJar(type: Copy) {
-  from 'build/libs'
-  into 'docker'
-  include '*.jar'
+task copyDkr(type: Copy) {
+  from 'docker'
+  into 'build/libs'
+  include 'Dockerfile'
 }
 
 composeUp.dependsOn(build)
-composeUp.dependsOn(copyJar)
+composeUp.dependsOn(copyDkr)
 
 compileKotlin {
   kotlinOptions {
