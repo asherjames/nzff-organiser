@@ -1,7 +1,6 @@
 package ash.java.nzfforganiser.model
 
-enum class Cinema(val displayName: String)
-{
+enum class Cinema(val displayName: String) {
   CIVIC("The Civic Theatre"),
   AWT("ASB Waterfront Theatre"),
   RIALTO("Rialto Cinemas Newmarket"),
@@ -13,8 +12,7 @@ enum class Cinema(val displayName: String)
   WINTER("The Wintergarden at The Civic"),
   UNKNOWN("Unknown cinema");
 
-  companion object
-  {
+  companion object {
     fun findCinema(search: String): Cinema
     {
       return values().find { it.displayName == search } ?: UNKNOWN

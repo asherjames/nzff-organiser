@@ -8,7 +8,6 @@ import org.springframework.cache.annotation.EnableCaching
 @EnableCaching
 class NzffOrgApplication
 
-fun main(args: Array<String>)
-{
+fun main(args: Array<String>) {
   runApplication<NzffOrgApplication>(*args)
 }

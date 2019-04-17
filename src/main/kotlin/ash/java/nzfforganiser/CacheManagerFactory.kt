@@ -3,7 +3,6 @@ package ash.java.nzfforganiser
 import com.github.benmanes.caffeine.cache.Caffeine
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.cache.CacheManager
 import org.springframework.cache.caffeine.CaffeineCache
 import org.springframework.cache.support.SimpleCacheManager
@@ -12,12 +11,10 @@ import org.springframework.context.annotation.Configuration
 import java.util.concurrent.TimeUnit
 
 @Configuration
-class CacheManagerFactory @Autowired constructor(private val config: NzffOrgConfig)
-{
+class CacheManagerFactory @Autowired constructor(private val config: NzffOrgConfig) {
   private val logger = LoggerFactory.getLogger(CacheManagerFactory::class.java)
 
-  companion object
-  {
+  companion object {
     const val WISHLISTS = "wishlists"
     const val SESSIONS = "sessions"
   }

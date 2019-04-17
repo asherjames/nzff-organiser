@@ -15,18 +15,20 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
 @Component
-class NzffResourceImpl @Autowired constructor(private val nzffDao: NzffDao,
-                                              private val scheduler: NzffScheduler) : NzffResource
-{
+class NzffResourceImpl @Autowired constructor(
+  private val nzffDao: NzffDao,
+  private val scheduler: NzffScheduler
+) : NzffResource {
   private val logger = LoggerFactory.getLogger(NzffResourceImpl::class.java)
 
-  override fun getOrganisedWishlist(@RequestParam("id") id: String,
-                                    @RequestBody(required = false) requestFilters: ScheduleRequest?): ResponseEntity<NzffResponse>
+  override fun getOrganisedWishlist(
+    @RequestParam("id") id: String,
+    @RequestBody(required = false) requestFilters: ScheduleRequest?
+  ): ResponseEntity<NzffResponse>
   {
     val wishlist = nzffDao.getWishlist(id)
 
-    if (wishlist.movies.isEmpty())
-    {
+    if (wishlist.movies.isEmpty()) {
       logger.info("Wishlist was empty, returning 404")
       return ResponseEntity
           .status(HttpStatus.NOT_FOUND)

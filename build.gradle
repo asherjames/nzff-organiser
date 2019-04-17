@@ -1,6 +1,6 @@
 buildscript {
   ext {
-    kotlinVersion = '1.3.21'
+    kotlinVersion = '1.3.30'
     springBootVersion = '2.1.2.RELEASE'
   }
   repositories {
@@ -8,11 +8,15 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath("com.avast.gradle:gradle-docker-compose-plugin:0.9.1")
     classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlinVersion}")
   }
+}
+
+
+plugins {
+  id "com.diffplug.gradle.spotless" version "3.22.0"
 }
 
 apply plugin: 'kotlin'
@@ -20,24 +24,16 @@ apply plugin: 'kotlin-spring'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-apply plugin: 'docker-compose'
 
 group = 'ash.java'
 version = '1.0.0'
 sourceCompatibility = 1.8
 
-dockerCompose {
-  useComposeFiles = ['docker/docker-compose.yml']
+spotless {
+  kotlin {
+    ktlint('0.31.0').userData(['indent_size': '2'])
+  }
 }
-
-task copyDkr(type: Copy) {
-  from 'docker'
-  into 'build/libs'
-  include 'Dockerfile'
-}
-
-composeUp.dependsOn(build)
-composeUp.dependsOn(copyDkr)
 
 compileKotlin {
   kotlinOptions {

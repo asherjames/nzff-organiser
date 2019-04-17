@@ -2,27 +2,27 @@ package ash.java.nzfforganiser.schedule
 
 import ash.java.nzfforganiser.exception.NoAcceptableScheduleFoundException
 import ash.java.nzfforganiser.exception.TooManySchedulesException
-import ash.java.nzfforganiser.model.*
+import ash.java.nzfforganiser.model.Cinema
+import ash.java.nzfforganiser.model.Movie
+import ash.java.nzfforganiser.model.ScheduleRequest
+import ash.java.nzfforganiser.model.ScheduleResult
 import com.google.common.collect.Lists
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.DayOfWeek
 import java.time.LocalTime
 
-interface NzffScheduler
-{
+interface NzffScheduler {
   fun findSchedule(allMovieTimes: List<List<Movie>>, filters: ScheduleRequest): ScheduleResult
 }
 
 @Service
-class NzffSchedulerImpl : NzffScheduler
-{
+class NzffSchedulerImpl : NzffScheduler {
   private val logger = LoggerFactory.getLogger(NzffSchedulerImpl::class.java)
 
   override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: ScheduleRequest): ScheduleResult
   {
-    try
-    {
+    try {
       val excludedDays = filters.scheduleFilters
           .filter { f -> f.excluded }
           .map { f -> f.day }
@@ -42,23 +42,20 @@ class NzffSchedulerImpl : NzffScheduler
           .flatMap { l -> l.map { m -> m.title } }
           .distinct()
           .minus(
-              filteredTimes.map { l -> l.firstOrNull()?.title ?: ""}
+              filteredTimes.map { l -> l.firstOrNull()?.title ?: "" }
           )
 
       if (filteredTimes.isEmpty()) throw NoAcceptableScheduleFoundException()
 
       val schedules = Lists.cartesianProduct(filteredTimes)
 
-      for (schedule in schedules)
-      {
+      for (schedule in schedules) {
         if (hasClashingSessions(schedule, filters.sessionGap)) continue
         return ScheduleResult(schedule, unavailableMovies)
       }
 
       throw NoAcceptableScheduleFoundException()
-    }
-    catch (e: IllegalArgumentException)
-    {
+    } catch (e: IllegalArgumentException) {
       logger.error("Cartesian product is too large")
       throw TooManySchedulesException(e)
     }
@@ -68,8 +65,7 @@ class NzffSchedulerImpl : NzffScheduler
   {
     val onExcludedDay = excludedDays.contains(movie.startTime.dayOfWeek)
 
-    if (onExcludedDay)
-    {
+    if (onExcludedDay) {
       logger.debug("${movie.title} session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session start time: ${movie.startTime}")
       return false
     }
@@ -81,13 +77,10 @@ class NzffSchedulerImpl : NzffScheduler
   {
     val period = validPeriods[movie.startTime.dayOfWeek]
 
-    val inValidPeriod = if (period != null)
-    {
-      (movie.startTime.toLocalTime().plusSeconds(1).isAfter(period.first)
-          && movie.endTime.toLocalTime().minusSeconds(1).isBefore(period.second))
-    }
-    else
-    {
+    val inValidPeriod = if (period != null) {
+      (movie.startTime.toLocalTime().plusSeconds(1).isAfter(period.first) &&
+          movie.endTime.toLocalTime().minusSeconds(1).isBefore(period.second))
+    } else {
       true
     }
 
@@ -100,8 +93,7 @@ class NzffSchedulerImpl : NzffScheduler
   {
     val atExcludedCinema = excludedCinemas.contains(movie.cinema)
 
-    if (atExcludedCinema)
-    {
+    if (atExcludedCinema) {
       logger.debug("${movie.title} session is at excluded cinema (${movie.cinema}), skipping.")
       return false
     }
@@ -116,11 +108,9 @@ class NzffSchedulerImpl : NzffScheduler
     val sortedSchedule = schedule
         .sortedBy { s -> s.startTime }
 
-    for (i in 1 until sortedSchedule.size)
-    {
+    for (i in 1 until sortedSchedule.size) {
       // Skip schedules with clashing sessions
-      if (sortedSchedule[i - 1].endTime.plusMinutes(sessionGap).isAfter(sortedSchedule[i].startTime))
-      {
+      if (sortedSchedule[i - 1].endTime.plusMinutes(sessionGap).isAfter(sortedSchedule[i].startTime)) {
         logger.debug("Schedule contains clash:\n${sortedSchedule[i - 1]}\n\tclashes with\n${sortedSchedule[i]} in schedule, skipping")
         return true
       }

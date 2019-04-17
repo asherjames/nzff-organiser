@@ -14,17 +14,17 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
 
-interface NzffDao
-{
+interface NzffDao {
   fun getWishlist(id: String): Wishlist
 
   fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie>
 }
 
 @Service
-class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClient,
-                                         private val config: NzffOrgConfig) : NzffDao
-{
+class NzffDaoImpl @Autowired constructor(
+  private val scraperClient: ScraperClient,
+  private val config: NzffOrgConfig
+) : NzffDao {
   private val logger = LoggerFactory.getLogger(NzffDaoImpl::class.java)
 
   private val aTag = "a"
@@ -54,14 +54,12 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
     val wishlistElements = doc.getElementsByClass(wishlistItemClass)
     val wishlistMovies = mutableListOf<WishlistMovie>()
 
-    if (wishlistElements.isEmpty())
-    {
+    if (wishlistElements.isEmpty()) {
       logger.info("Could not find any wishlist elements")
       return Wishlist()
     }
 
-    for (wishlistElement in wishlistElements)
-    {
+    for (wishlistElement in wishlistElements) {
       val titleElement = wishlistElement.getElementsByClass(sessionInfoClass).first()
       val link = titleElement.getElementsByTag(aTag)
 
@@ -86,25 +84,20 @@ class NzffDaoImpl @Autowired constructor(private val scraperClient: ScraperClien
     val detailElements = doc.select(filmDetailSelect)
     val movieTimes = mutableListOf<Movie>()
 
-    if (detailElements.isEmpty())
-    {
+    if (detailElements.isEmpty()) {
       logger.info("Could not find any film times")
       return movieTimes
     }
 
     val durationElement = detailElements.first().getElementsByAttributeValue(itempropAttribute, "duration")
-    val duration = try
-    {
+    val duration = try {
       Duration.parse(durationElement.attr(contentAttribute))
-    }
-    catch (e: DateTimeParseException)
-    {
+    } catch (e: DateTimeParseException) {
       logger.error("Error while parsing movie session times", e)
       Duration.ZERO
     }
 
-    for (session in detailElements)
-    {
+    for (session in detailElements) {
       val startDateElement = session.getElementsByAttributeValue(itempropAttribute, "startDate")
       val startDate = LocalDateTime.parse(startDateElement.attr(contentAttribute))
       val locationElement = session.getElementsByAttributeValue(itempropAttribute, "location")

@@ -7,15 +7,13 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties("nzff")
-class NzffOrgConfig
-{
+class NzffOrgConfig {
   lateinit var path: String
   lateinit var baseUrl: String
   val wishlistCacheConfig = CacheConfig()
   var sessionCacheConfig = CacheConfig()
 
-  class CacheConfig
-  {
+  class CacheConfig {
     var expireSec: Long = 0
     var maxSize: Long = 0
   }

@@ -1,15 +1,17 @@
 package ash.java.nzfforganiser.dao
 
-import ash.java.nzfforganiser.*
+import ash.java.nzfforganiser.FilmInfoScraperClientStub
+import ash.java.nzfforganiser.NzffOrgConfig
+import ash.java.nzfforganiser.WishlistScraperClientStub
+import ash.java.nzfforganiser.WishlistScraperClientStub_Duplicates
 import ash.java.nzfforganiser.model.WishlistMovie
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.time.LocalDateTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class NzffDaoTest
-{
+class NzffDaoTest {
   private val config = NzffOrgConfig()
 
   private val wishlistNzffDao = NzffDaoImpl(WishlistScraperClientStub(), config)
@@ -25,27 +27,23 @@ class NzffDaoTest
   ))
 
   @Test
-  fun `document loads successfully`()
-  {
+  fun `document loads successfully`() {
     assertThat(wishlist.name).isNotBlank()
     assertThat(wishlist.movies).isNotEmpty
   }
 
   @Test
-  fun `wishlist name has correct value`()
-  {
+  fun `wishlist name has correct value`() {
     assertThat(wishlist.name).isEqualTo("James")
   }
 
   @Test
-  fun `wishlist is correct length`()
-  {
+  fun `wishlist is correct length`() {
     assertThat(wishlist.movies.size).isEqualTo(14)
   }
 
   @Test
-  fun `wishlist movies have correct titles`()
-  {
+  fun `wishlist movies have correct titles`() {
     assertThat(wishlist.movies.map { m -> m.title })
         .containsExactly(
             "The Lobster",
@@ -66,8 +64,7 @@ class NzffDaoTest
   }
 
   @Test
-  fun `movies have correct hrefs`()
-  {
+  fun `movies have correct hrefs`() {
     assertThat(wishlist.movies.map { m -> m.websiteUrl })
         .containsExactly(
             "https://www.nziff.co.nz/2015/auckland/the-lobster/",
@@ -88,24 +85,21 @@ class NzffDaoTest
   }
 
   @Test
-  fun `session list is correct length`()
-  {
+  fun `session list is correct length`() {
     assertThat(filmInfo.size).isEqualTo(4)
   }
 
   @Test
-  fun `correct values are carried over from wishlist`()
-  {
+  fun `correct values are carried over from wishlist`() {
     assertThat(filmInfo)
         .allMatch {
-          it.title == "The Lobster"
-          && it.websiteUrl == "/the-lobster"
+          it.title == "The Lobster" &&
+          it.websiteUrl == "/the-lobster"
         }
   }
 
   @Test
-  fun `correct start times are parsed`()
-  {
+  fun `correct start times are parsed`() {
     assertThat(filmInfo.map { e -> e.startTime })
         .containsOnly(
             LocalDateTime.parse("2015-07-16T19:15:00"),
@@ -116,8 +110,7 @@ class NzffDaoTest
   }
 
   @Test
-  fun `correct end times are calculated`()
-  {
+  fun `correct end times are calculated`() {
     assertThat(filmInfo.map { e -> e.endTime })
         .containsOnly(
             LocalDateTime.parse("2015-07-16T21:13:00"),
@@ -128,15 +121,13 @@ class NzffDaoTest
   }
 
   @Test
-  fun `correct thumbnails are extracted`()
-  {
+  fun `correct thumbnails are extracted`() {
     assertThat(filmInfo.map { e -> e.thumbnailUrl })
         .containsOnly("/assets/resized/sm/upload/gg/ha/go/4i/THE%20LOBSTER%20KEY%20-%20Photo%20Despina%20Spyrou-2000-2000-1125-1125-crop-fill.jpg")
   }
 
   @Test
-  fun `wishlist duplicates are removed`()
-  {
+  fun `wishlist duplicates are removed`() {
     assertThat(wishlist_duplicates.movies.map { w -> w.title })
         .containsExactly(
             "Birds of Passage",

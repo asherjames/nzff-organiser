@@ -3,16 +3,14 @@ package ash.java.nzfforganiser
 import ash.java.nzfforganiser.resource.NzffResourceImpl
 import ash.java.nzfforganiser.schedule.NzffSchedulerImpl
 import io.restassured.http.ContentType
-import io.restassured.module.mockmvc.RestAssuredMockMvc.*
+import io.restassured.module.mockmvc.RestAssuredMockMvc.given
 import org.junit.jupiter.api.Test
 
-class NzffResourceTest
-{
+class NzffResourceTest {
   private val endpoint = "/wishlist"
 
   @Test
-  fun `empty id returns 400`()
-  {
+  fun `empty id returns 400`() {
     given()
         .standaloneSetup(
             NzffResourceImpl(
@@ -27,8 +25,7 @@ class NzffResourceTest
   }
 
   @Test
-  fun `empty wishlist returns 404`()
-  {
+  fun `empty wishlist returns 404`() {
     given()
         .standaloneSetup(
             NzffResourceImpl(
@@ -43,8 +40,7 @@ class NzffResourceTest
   }
 
   @Test
-  fun `supplying only excluded cinemas is still accepted`()
-  {
+  fun `supplying only excluded cinemas is still accepted`() {
     given()
         .standaloneSetup(
             NzffResourceImpl(
@@ -65,8 +61,7 @@ class NzffResourceTest
   }
 
   @Test
-  fun `supplying only session gap is still accepted`()
-  {
+  fun `supplying only session gap is still accepted`() {
     given()
         .standaloneSetup(
             NzffResourceImpl(
@@ -87,8 +82,7 @@ class NzffResourceTest
   }
 
   @Test
-  fun `supplying only schedule filters is still accepted`()
-  {
+  fun `supplying only schedule filters is still accepted`() {
     given()
         .standaloneSetup(
             NzffResourceImpl(
@@ -119,8 +113,7 @@ class NzffResourceTest
   }
 
   @Test
-  fun `supplying all filters is accepted`()
-  {
+  fun `supplying all filters is accepted`() {
     given()
         .standaloneSetup(
             NzffResourceImpl(

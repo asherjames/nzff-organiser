@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
 @ControllerAdvice
-class ExceptionAdvisor : ResponseEntityExceptionHandler()
-{
+class ExceptionAdvisor : ResponseEntityExceptionHandler() {
   @ExceptionHandler(ScraperException::class)
   fun handleScraperException(e: ScraperException): ResponseEntity<NzffResponse>
   {

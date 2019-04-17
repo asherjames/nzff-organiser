@@ -9,8 +9,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
 
-class WishlistScraperClientStub : ScraperClient
-{
+class WishlistScraperClientStub : ScraperClient {
   override fun getDocument(url: String): Document
   {
     val wishlistUrl = this.javaClass.classLoader.getResource("wishlist.html")
@@ -18,8 +17,7 @@ class WishlistScraperClientStub : ScraperClient
   }
 }
 
-class WishlistScraperClientStub_Duplicates : ScraperClient
-{
+class WishlistScraperClientStub_Duplicates : ScraperClient {
   override fun getDocument(url: String): Document
   {
     val wishlistUrl = this.javaClass.classLoader.getResource("wishlist_duplicates.html")
@@ -27,8 +25,7 @@ class WishlistScraperClientStub_Duplicates : ScraperClient
   }
 }
 
-class FilmInfoScraperClientStub : ScraperClient
-{
+class FilmInfoScraperClientStub : ScraperClient {
   override fun getDocument(url: String): Document
   {
     val filmInfoUrl = this.javaClass.classLoader.getResource("movieTimes.html")
@@ -36,8 +33,7 @@ class FilmInfoScraperClientStub : ScraperClient
   }
 }
 
-class EmptyWishlistNzffDao : NzffDao
-{
+class EmptyWishlistNzffDao : NzffDao {
   override fun getWishlist(id: String): Wishlist
   {
     return Wishlist()

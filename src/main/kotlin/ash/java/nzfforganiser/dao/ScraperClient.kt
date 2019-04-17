@@ -7,25 +7,20 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.IOException
 
-interface ScraperClient
-{
+interface ScraperClient {
   fun getDocument(url: String): Document
 }
 
 @Service
-class ScraperClientImpl : ScraperClient
-{
+class ScraperClientImpl : ScraperClient {
   private val logger = LoggerFactory.getLogger(ScraperClientImpl::class.java)
 
   override fun getDocument(url: String): Document
   {
-    try
-    {
+    try {
       logger.info("Retrieving HTML document from $url")
       return Jsoup.connect(url).get()
-    }
-    catch (e: IOException)
-    {
+    } catch (e: IOException) {
       logger.error("Error while attempting to retrieve HTML document from $url", e)
       throw ScraperException("Unable to connect to NZFF site")
     }

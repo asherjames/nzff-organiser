@@ -14,8 +14,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class NzffSchedulerTest
-{
+class NzffSchedulerTest {
   private val scheduler = NzffSchedulerImpl()
 
   private val mondayMorning = LocalDateTime.parse("2018-06-18T09:00:00")
@@ -39,8 +38,7 @@ class NzffSchedulerTest
   private val fridayEvening = LocalDateTime.parse("2018-06-22T19:00:00")
 
   @Test
-  fun `excluded days are rejected`()
-  {
+  fun `excluded days are rejected`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", fridayEvening, fridayEvening.plusHours(2)),
@@ -55,8 +53,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `acceptable days are not rejected`()
-  {
+  fun `acceptable days are not rejected`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", fridayEvening, fridayEvening.plusHours(2)),
@@ -69,8 +66,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `unacceptable session times are rejected`()
-  {
+  fun `unacceptable session times are rejected`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", fridayEvening, fridayEvening.plusHours(2)),
@@ -87,8 +83,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `partially acceptable session times are still rejected`()
-  {
+  fun `partially acceptable session times are still rejected`() {
     val schedule = mutableListOf(
         createMovie("A", wednesdayMorning, wednesdayMorning.plusHours(2)),
         createMovie("B", wednesdayAfternoon, wednesdayAfternoon.plusHours(2)),
@@ -105,8 +100,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `restrictions on irrelevant days are ignored`()
-  {
+  fun `restrictions on irrelevant days are ignored`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", fridayEvening, fridayEvening.plusHours(2)),
@@ -123,8 +117,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `restrictions that match sessions exactly are accepted`()
-  {
+  fun `restrictions that match sessions exactly are accepted`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
@@ -154,8 +147,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `sessions that do not clash are accepted`()
-  {
+  fun `sessions that do not clash are accepted`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
@@ -168,8 +160,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `sessions that clash are rejected`()
-  {
+  fun `sessions that clash are rejected`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
@@ -182,8 +173,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `schedules with excluded days throw correct exception`()
-  {
+  fun `schedules with excluded days throw correct exception`() {
     val movies = listOf(
         listOf(
             createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
@@ -209,8 +199,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `schedules with no excluded days are accepted`()
-  {
+  fun `schedules with no excluded days are accepted`() {
     val movies = listOf(
         listOf(
             createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
@@ -236,8 +225,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `schedules with excluded periods throw correct exception`()
-  {
+  fun `schedules with excluded periods throw correct exception`() {
     val movies = listOf(
         listOf(
             createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
@@ -279,8 +267,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `schedules with no excluded periods are accepted`()
-  {
+  fun `schedules with no excluded periods are accepted`() {
     val movies = listOf(
         listOf(
             createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
@@ -328,8 +315,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `filters with default values should have no effect`()
-  {
+  fun `filters with default values should have no effect`() {
     val movies = listOf(
         listOf(
             createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
@@ -389,8 +375,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `single movie is processed correctly`()
-  {
+  fun `single movie is processed correctly`() {
     val movies = listOf(
         listOf(
             createMovie("A", mondayMorning, mondayMorning.plusHours(2))
@@ -402,8 +387,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `movies with exactly the same times are skipped`()
-  {
+  fun `movies with exactly the same times are skipped`() {
     val movies = listOf(
         listOf(
             createMovie("A1", mondayEvening, mondayEvening.plusHours(2)),
@@ -420,8 +404,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `unavailable movies are correctly identified`()
-  {
+  fun `unavailable movies are correctly identified`() {
     val movies = listOf(
         listOf(
             createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
@@ -448,8 +431,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `movies at excluded cinemas are filtered out`()
-  {
+  fun `movies at excluded cinemas are filtered out`() {
     val movies = listOf(
         listOf(
             createMovieAtCinema("A1", mondayEvening, mondayEvening.plusHours(2), Cinema.HOLLYWOOD),
@@ -473,8 +455,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `movies closer than session gap are skipped`()
-  {
+  fun `movies closer than session gap are skipped`() {
     val schedule = mutableListOf(
         createMovie("A", mondayEvening, mondayEvening.plusHours(2)),
         createMovie("B", tuesdayEvening, tuesdayEvening.plusHours(2)),
@@ -487,8 +468,7 @@ class NzffSchedulerTest
   }
 
   @Test
-  fun `schedules that violate session gap are skipped`()
-  {
+  fun `schedules that violate session gap are skipped`() {
     val movies = listOf(
         listOf(
             createMovieAtCinema("A1", mondayEvening, mondayEvening.plusHours(2), Cinema.HOLLYWOOD),
