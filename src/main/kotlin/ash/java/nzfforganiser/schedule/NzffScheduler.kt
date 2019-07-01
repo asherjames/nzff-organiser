@@ -67,6 +67,7 @@ class NzffSchedulerImpl : NzffScheduler {
 
     if (onExcludedDay) {
       logger.debug("${movie.title} session is on excluded day (${movie.startTime.dayOfWeek}), skipping. Session start time: ${movie.startTime}")
+
       return false
     }
 
@@ -95,6 +96,7 @@ class NzffSchedulerImpl : NzffScheduler {
 
     if (atExcludedCinema) {
       logger.debug("${movie.title} session is at excluded cinema (${movie.cinema}), skipping.")
+
       return false
     }
 
@@ -112,6 +114,7 @@ class NzffSchedulerImpl : NzffScheduler {
       // Skip schedules with clashing sessions
       if (sortedSchedule[i - 1].endTime.plusMinutes(sessionGap).isAfter(sortedSchedule[i].startTime)) {
         logger.debug("Schedule contains clash:\n${sortedSchedule[i - 1]}\n\tclashes with\n${sortedSchedule[i]} in schedule, skipping")
+
         return true
       }
     }
