@@ -1,7 +1,6 @@
 package ash.java.nzfforganiser
 
 import com.github.benmanes.caffeine.cache.Caffeine
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.cache.CacheManager
 import org.springframework.cache.caffeine.CaffeineCache
@@ -12,27 +11,15 @@ import java.util.concurrent.TimeUnit
 
 @Configuration
 class CacheManagerFactory @Autowired constructor(private val config: NzffOrgConfig) {
-  private val logger = LoggerFactory.getLogger(CacheManagerFactory::class.java)
-
   companion object {
     const val WISHLISTS = "wishlists"
     const val SESSIONS = "sessions"
   }
 
   @Bean
-  fun cacheManager(): CacheManager
-  {
+  fun cacheManager(): CacheManager {
     val wishlistCache = createCache(WISHLISTS, config.wishlistCacheConfig)
     val sessionCache = createCache(SESSIONS, config.sessionCacheConfig)
-
-    logger.info("""
-
-      -------Cache config-------
-      wishlistCache: ${config.wishlistCacheConfig}
-      sessionCache: ${config.sessionCacheConfig}
-      --------------------------
-
-    """.trimIndent())
 
     val cacheManager = SimpleCacheManager()
 
@@ -41,8 +28,7 @@ class CacheManagerFactory @Autowired constructor(private val config: NzffOrgConf
     return cacheManager
   }
 
-  private fun createCache(name: String, cacheConfig: NzffOrgConfig.CacheConfig): CaffeineCache
-  {
+  private fun createCache(name: String, cacheConfig: NzffOrgConfig.CacheConfig): CaffeineCache {
     return CaffeineCache(name, Caffeine.newBuilder()
         .expireAfterAccess(cacheConfig.expireSec, TimeUnit.SECONDS)
         .maximumSize(cacheConfig.maxSize)

@@ -1,9 +1,6 @@
 # Spring config
 logging.level.ash.java.nzfforganiser: ${LOG_LEVEL:INFO}
-
 server.port: ${PORT:5000}
-
-spring.profiles.active: ${SPRING_PROF:dev}
 
 # App config
 nzff.path: "/2019/auckland/wishlist/"
@@ -14,5 +11,5 @@ nzff.wishlistCacheConfig:
   maxSize: 100
 
 nzff.sessionCacheConfig:
-  expireSec: 14400 # 4 hours
+  expireSec: 3600 # 1 hour
   maxSize: 100

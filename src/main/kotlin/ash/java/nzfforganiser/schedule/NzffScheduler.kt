@@ -20,8 +20,7 @@ interface NzffScheduler {
 class NzffSchedulerImpl : NzffScheduler {
   private val logger = LoggerFactory.getLogger(NzffSchedulerImpl::class.java)
 
-  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: ScheduleRequest): ScheduleResult
-  {
+  override fun findSchedule(allMovieTimes: List<List<Movie>>, filters: ScheduleRequest): ScheduleResult {
     try {
       val excludedDays = filters.scheduleFilters
           .filter { f -> f.excluded }
@@ -61,8 +60,7 @@ class NzffSchedulerImpl : NzffScheduler {
     }
   }
 
-  internal fun isOnValidDay(movie: Movie, excludedDays: List<DayOfWeek>): Boolean
-  {
+  internal fun isOnValidDay(movie: Movie, excludedDays: List<DayOfWeek>): Boolean {
     val onExcludedDay = excludedDays.contains(movie.startTime.dayOfWeek)
 
     if (onExcludedDay) {
@@ -74,8 +72,7 @@ class NzffSchedulerImpl : NzffScheduler {
     return true
   }
 
-  internal fun isInValidPeriod(movie: Movie, validPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean
-  {
+  internal fun isInValidPeriod(movie: Movie, validPeriods: Map<DayOfWeek, Pair<LocalTime, LocalTime>>): Boolean {
     val period = validPeriods[movie.startTime.dayOfWeek]
 
     val inValidPeriod = if (period != null) {
@@ -90,8 +87,7 @@ class NzffSchedulerImpl : NzffScheduler {
     return inValidPeriod
   }
 
-  internal fun isAtValidCinema(movie: Movie, excludedCinemas: List<Cinema>): Boolean
-  {
+  internal fun isAtValidCinema(movie: Movie, excludedCinemas: List<Cinema>): Boolean {
     val atExcludedCinema = excludedCinemas.contains(movie.cinema)
 
     if (atExcludedCinema) {
@@ -103,8 +99,7 @@ class NzffSchedulerImpl : NzffScheduler {
     return true
   }
 
-  internal fun hasClashingSessions(schedule: MutableList<Movie>, sessionGap: Long): Boolean
-  {
+  internal fun hasClashingSessions(schedule: MutableList<Movie>, sessionGap: Long): Boolean {
     if (schedule.size <= 1) return false
 
     val sortedSchedule = schedule

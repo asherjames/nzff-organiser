@@ -13,8 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 class ExceptionAdvisor : ResponseEntityExceptionHandler() {
   @ExceptionHandler(ScraperException::class)
-  fun handleScraperException(e: ScraperException): ResponseEntity<NzffResponse>
-  {
+  fun handleScraperException(e: ScraperException): ResponseEntity<NzffResponse> {
     return ResponseEntity
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(NzffResponse(
@@ -23,8 +22,7 @@ class ExceptionAdvisor : ResponseEntityExceptionHandler() {
   }
 
   @ExceptionHandler(TooManySchedulesException::class)
-  fun handleTooManyResultsException(e: TooManySchedulesException): ResponseEntity<NzffResponse>
-  {
+  fun handleTooManyResultsException(e: TooManySchedulesException): ResponseEntity<NzffResponse> {
     return ResponseEntity
         .status(HttpStatus.BAD_REQUEST)
         .body(NzffResponse(
@@ -33,8 +31,7 @@ class ExceptionAdvisor : ResponseEntityExceptionHandler() {
   }
 
   @ExceptionHandler(NoAcceptableScheduleFoundException::class)
-  fun handleNoAcceptableScheduleFound(e: NoAcceptableScheduleFoundException): ResponseEntity<NzffResponse>
-  {
+  fun handleNoAcceptableScheduleFound(e: NoAcceptableScheduleFoundException): ResponseEntity<NzffResponse> {
     return ResponseEntity
         .status(HttpStatus.NOT_FOUND)
         .body(NzffResponse(
@@ -43,8 +40,7 @@ class ExceptionAdvisor : ResponseEntityExceptionHandler() {
   }
 
   @ExceptionHandler(Exception::class)
-  fun handleAll(e: Exception): ResponseEntity<NzffResponse>
-  {
+  fun handleAll(e: Exception): ResponseEntity<NzffResponse> {
     return ResponseEntity
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(NzffResponse(

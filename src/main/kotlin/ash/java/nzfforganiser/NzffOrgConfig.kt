@@ -1,12 +1,10 @@
 package ash.java.nzfforganiser
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 
-@Configuration
-@EnableConfigurationProperties
-@ConfigurationProperties("nzff")
+@Component
+@ConfigurationProperties(prefix = "nzff")
 class NzffOrgConfig {
   lateinit var path: String
   lateinit var baseUrl: String

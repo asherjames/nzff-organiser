@@ -15,8 +15,7 @@ interface ScraperClient {
 class ScraperClientImpl : ScraperClient {
   private val logger = LoggerFactory.getLogger(ScraperClientImpl::class.java)
 
-  override fun getDocument(url: String): Document
-  {
+  override fun getDocument(url: String): Document {
     try {
       logger.info("Retrieving HTML document from $url")
       return Jsoup.connect(url).get()

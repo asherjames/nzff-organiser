@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-  id "com.diffplug.gradle.spotless" version "3.22.0"
+  id "com.diffplug.gradle.spotless" version "3.23.1"
 }
 
 apply plugin: 'kotlin'
@@ -28,7 +28,7 @@ sourceCompatibility = 1.8
 
 spotless {
   kotlin {
-    ktlint('0.31.0').userData(['indent_size': '2'])
+    ktlint('0.32.0').userData(['indent_size': '2'])
   }
 }
 

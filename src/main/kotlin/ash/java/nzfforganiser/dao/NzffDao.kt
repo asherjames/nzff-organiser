@@ -44,8 +44,7 @@ class NzffDaoImpl @Autowired constructor(
   private val filmDetailSelect = "[class=\"detail\"]"
 
   @Cacheable(CacheManagerFactory.WISHLISTS)
-  override fun getWishlist(id: String): Wishlist
-  {
+  override fun getWishlist(id: String): Wishlist {
     val doc = scraperClient.getDocument("${config.baseUrl}${config.path}$id")
     val headElement = doc.getElementsByTag(headTag).first()
     val titleText = headElement.getElementsByTag(titleTag).text()
@@ -76,8 +75,7 @@ class NzffDaoImpl @Autowired constructor(
   }
 
   @Cacheable(CacheManagerFactory.SESSIONS, key = "#wishlistMovie.title")
-  override fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie>
-  {
+  override fun getMovieTimes(wishlistMovie: WishlistMovie): List<Movie> {
     val doc = scraperClient.getDocument("${config.baseUrl}${wishlistMovie.websiteUrl}")
     val imageElement = doc.select(mediaClassSelect).first()
     val thumbnailUrl = imageElement.getElementsByTag(imgTag).attr(srcAttribute)

@@ -489,8 +489,7 @@ class NzffSchedulerTest {
         .containsExactly("A2", "B", "C", "D3")
   }
 
-  private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie
-  {
+  private fun createMovie(title: String, startTime: LocalDateTime, endTime: LocalDateTime): Movie {
     return Movie(title = title,
         websiteUrl = "",
         thumbnailUrl = "",
@@ -498,8 +497,7 @@ class NzffSchedulerTest {
         endTime = endTime)
   }
 
-  private fun createMovieAtCinema(title: String, startTime: LocalDateTime, endTime: LocalDateTime, cinema: Cinema): Movie
-  {
+  private fun createMovieAtCinema(title: String, startTime: LocalDateTime, endTime: LocalDateTime, cinema: Cinema): Movie {
     return Movie(title = title,
         websiteUrl = "",
         thumbnailUrl = "",
@@ -508,15 +506,13 @@ class NzffSchedulerTest {
         cinema = cinema)
   }
 
-  private fun List<ScheduleFilter>.toExcludedDays(): List<DayOfWeek>
-  {
+  private fun List<ScheduleFilter>.toExcludedDays(): List<DayOfWeek> {
     return this
         .filter { f -> f.excluded }
         .map { f -> f.day }
   }
 
-  private fun List<ScheduleFilter>.toExcludedPeriods(): Map<DayOfWeek, Pair<LocalTime, LocalTime>>
-  {
+  private fun List<ScheduleFilter>.toExcludedPeriods(): Map<DayOfWeek, Pair<LocalTime, LocalTime>> {
     return this.map { it.day to Pair(it.from, it.to) }
         .toMap()
   }

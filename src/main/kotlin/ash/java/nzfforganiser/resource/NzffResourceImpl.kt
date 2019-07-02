@@ -24,8 +24,7 @@ class NzffResourceImpl @Autowired constructor(
   override fun getOrganisedWishlist(
     @RequestParam("id") id: String,
     @RequestBody(required = false) requestFilters: ScheduleRequest?
-  ): ResponseEntity<NzffResponse>
-  {
+  ): ResponseEntity<NzffResponse> {
     val wishlist = nzffDao.getWishlist(id)
 
     if (wishlist.movies.isEmpty()) {
@@ -49,8 +48,7 @@ class NzffResourceImpl @Autowired constructor(
   }
 
   @GetMapping("/ping")
-  fun pong(): ResponseEntity<String>
-  {
+  fun pong(): ResponseEntity<String> {
     return ResponseEntity.ok("pong!")
   }
 }
