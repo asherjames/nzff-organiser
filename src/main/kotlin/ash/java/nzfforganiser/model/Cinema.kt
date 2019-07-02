@@ -8,14 +8,13 @@ enum class Cinema(val displayName: String) {
   EVENT_QUEEN("Event Cinemas Queen Street"),
   EVENT_WEST("Event Cinemas Westgate"),
   HOLLYWOOD("Hollywood Avondale"),
-  ACADEMY("Academy Cinema"),
+  ACADEMY("Academy Cinemas"),
   WINTER("The Wintergarden at The Civic"),
   UNKNOWN("Unknown cinema");
 
   companion object {
-    fun findCinema(search: String): Cinema
-    {
-      return values().find { it.displayName == search } ?: UNKNOWN
+    fun findCinema(cinemaName: String): Cinema {
+      return values().find { it.displayName.equals(cinemaName, ignoreCase = true) } ?: UNKNOWN
     }
   }
 }
